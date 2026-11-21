@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Google Analytics 4 (gtag.js) -->
+    <script>
+        var GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // <-- Replace with your Measurement ID
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        if (/^G-[A-Z0-9]+$/.test(GA_MEASUREMENT_ID) && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+            var gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+            document.head.appendChild(gaScript);
+            gtag('js', new Date());
+            gtag('config', GA_MEASUREMENT_ID);
+        }
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Projets IA et Machine Learning - Dang Phuc Khang Ly" />
+    <meta name="author" content="Dang Phuc Khang Ly" />
+    <title>Dang Phuc Khang Ly | Projets</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons & CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent-cyan: #38bdf8;
+            --accent-indigo: #818cf8;
+            --accent-blue: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #fff !important;
+        }
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-cyan) !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 90px 0 70px;
+            position: relative;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            color: var(--accent-cyan);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Profile Avatar */
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+        }
+        .avatar-glow {
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            border-radius: 28px;
+            filter: blur(15px);
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+        .avatar-container:hover .avatar-glow {
+            opacity: 0.95;
+        }
+        .avatar-img {
+            position: relative;
+            width: 320px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            z-index: 1;
+        }
+
+        /* Buttons */
+        .btn-cyan {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-cyan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.6);
+            color: #fff;
+        }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.8);
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .icon-box.cyan { background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); }
+        .icon-box.indigo { background: rgba(129, 140, 248, 0.12); color: var(--accent-indigo); }
+
+        /* Tech Tags */
+        .tech-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Social Links */
+        .social-link {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .social-link:hover {
+            background: var(--accent-cyan);
+            color: #0f172a;
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: #090d16;
+        }
+
+        .card-desc {
+            color: #cbd5e1;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-tag {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-cyan);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .lang-toggle:hover {
+            background: var(--accent-cyan);
+            color: #0f172a;
+        }
+
+        /* Project Pages */
+        .page-header {
+            padding: 70px 0 40px;
+            position: relative;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .page-header .container { position: relative; z-index: 1; }
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent-cyan); }
+        .lead-text {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            line-height: 1.75;
+            max-width: 760px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .section-title i { color: var(--accent-cyan); }
+        .section-sub {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .detail-section { padding: 40px 0; }
+
+        /* Project cards (overview) */
+        .project-card {
+            padding: 34px;
+            display: flex;
+            flex-direction: column;
+        }
+        .project-card .project-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .project-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 6px 0 16px;
+        }
+        .project-list {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            padding-left: 1.2rem;
+            margin-bottom: 22px;
+        }
+        .project-list li { margin-bottom: 8px; }
+        .project-list li::marker { color: var(--accent-cyan); }
+        .btn-sm-cyan, .btn-sm-glass {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Stats */
+        .stat-card {
+            text-align: center;
+            padding: 26px 18px;
+        }
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Pipeline flow */
+        .flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .flow-step {
+            flex: 1 1 150px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px 16px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .flow-step:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-3px);
+        }
+        .flow-step .step-num {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .flow-step .step-icon {
+            font-size: 1.4rem;
+            color: var(--accent-indigo);
+            margin: 6px 0 8px;
+        }
+        .flow-step h6 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+        .flow-step p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+        }
+        @media (max-width: 767px) {
+            .flow { flex-direction: column; }
+            .flow-arrow { justify-content: center; transform: rotate(90deg); }
+        }
+        .flow-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+        .flow-label .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 12px var(--accent-cyan);
+        }
+        .flow-label .dot.indigo {
+            background: var(--accent-indigo);
+            box-shadow: 0 0 12px var(--accent-indigo);
+        }
+
+        /* Feature cards */
+        .feature-card h5 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+        .feature-card p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #0b1120;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .code-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .code-head .dots span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 4px;
+            background: rgba(148, 163, 184, 0.3);
+        }
+        .code-block pre {
+            margin: 0;
+            padding: 18px 20px;
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        .code-block .c { color: #64748b; }
+        .code-block .k { color: #c084fc; }
+        .code-block .s { color: #7dd3fc; }
+        .code-block .f { color: #818cf8; }
+
+        /* Config table */
+        .config-table {
+            width: 100%;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        .config-table td {
+            padding: 11px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .config-table tr:last-child td { border-bottom: none; }
+        .config-table td:last-child {
+            text-align: right;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Chat demo */
+        .chat-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .chat-bubble.user {
+            margin-left: auto;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble.bot {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-bubble.rewrite {
+            margin: 0 auto 12px;
+            background: rgba(129, 140, 248, 0.1);
+            border: 1px dashed rgba(129, 140, 248, 0.5);
+            color: #c7d2fe;
+            font-size: 0.85rem;
+        }
+        .chat-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Result bar */
+        .result-bar {
+            display: flex;
+            height: 38px;
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .result-bar .hit {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+        }
+        .result-bar .miss {
+            background: rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 14px;
+        }
+
+        .check-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+            color: #cbd5e1;
+            font-size: 0.92rem;
+        }
+        .check-list li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .check-list li i { color: var(--accent-cyan); margin-top: 2px; }
+        .check-list.indigo li i { color: var(--accent-indigo); }
+
+        main code {
+            color: #7dd3fc;
+        }
+        .cta-card {
+            text-align: center;
+            padding: 44px 30px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(129, 140, 248, 0.12));
+        }
+    </style>
+</head>
+<body class="d-flex flex-column h-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <span class="fs-4 gradient-text fw-bold">KHANGLY.PORTFOLIO</span>
+            </a>
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-3">
+                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav_home">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="resume.html" data-i18n="nav_about">À Propos & Éducation</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="projects.html" data-i18n="nav_projects">Projets</a></li>
+                </ul>
+                <button type="button" id="langToggle" class="lang-toggle ms-lg-4 mt-2 mt-lg-0" aria-label="Switch language">
+                    <i class="bi bi-translate"></i><span id="langLabel">FR</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container text-center">
+                <div class="tech-badge" data-i18n="p_badge"><i class="bi bi-kanban-fill"></i> Portfolio de projets</div>
+                <h1 class="display-5 fw-bold mb-3" data-i18n="p_title">Mes <span class="gradient-text">Projets</span></h1>
+                <p class="lead-text mx-auto mb-0" data-i18n="p_sub">Des projets concrets en IA et Machine Learning, de la donnée brute jusqu'à l'application, conçus avec une approche orientée production.</p>
+            </div>
+        </section>
+
+        <!-- Projects Grid -->
+        <section class="pb-5">
+            <div class="container pb-4">
+                <div class="row g-4 justify-content-center">
+
+                    <!-- Project 1 -->
+                    <div class="col-lg-6">
+                        <div class="glass-card project-card h-100">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="icon-box cyan mb-3"><i class="bi bi-camera-fill"></i></div>
+                                <a href="https://github.com/lydangphuckhang/Industrial-surface-defect-detection" target="_blank" class="social-link" title="GitHub"><i class="bi bi-github"></i></a>
+                            </div>
+                            <div class="project-num" data-i18n="p3_type">PROJET 01 · COMPUTER VISION</div>
+                            <h3>Industrial Surface Defect Detection</h3>
+                            <ul class="project-list">
+                                <li data-i18n="p3_b1">Développement d'un prototype d'inspection visuelle automatisée qui classe des pièces de fonderie en OK ou NG (défectueuses) à partir d'images.</li>
+                                <li data-i18n="p3_b2">Transfer Learning avec un ResNet18 pré-entraîné (backbone gelé) et pipeline d'images OpenCV + PyTorch avec augmentation de données.</li>
+                                <li data-i18n="p3_b3">99,02 % d'accuracy sur 715 images de test, avec une analyse orientée qualité des faux positifs et faux négatifs.</li>
+                            </ul>
+                            <div class="tech-tags mb-4">
+                                <span class="tech-tag">PyTorch</span>
+                                <span class="tech-tag">Torchvision</span>
+                                <span class="tech-tag">ResNet18</span>
+                                <span class="tech-tag">Transfer Learning</span>
+                                <span class="tech-tag">OpenCV</span>
+                                <span class="tech-tag">Scikit-learn</span>
+                                <span class="tech-tag">Pytest</span>
+                                <span class="tech-tag">Computer Vision</span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-3 mt-auto">
+                                <a href="project-defect.html" class="btn btn-cyan btn-sm-cyan" data-i18n="btn_details3"><i class="bi bi-arrow-right-circle me-2"></i>Voir le projet</a>
+                                <a href="https://github.com/lydangphuckhang/Industrial-surface-defect-detection" target="_blank" class="btn btn-glass btn-sm-glass"><i class="bi bi-github me-2"></i>GitHub</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="col-lg-6">
+                        <div class="glass-card project-card h-100">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="icon-box cyan mb-3"><i class="bi bi-chat-left-dots-fill"></i></div>
+                                <a href="https://github.com/lydangphuckhang/Local_RAG_chatbot" target="_blank" class="social-link" title="GitHub"><i class="bi bi-github"></i></a>
+                            </div>
+                            <div class="project-num" data-i18n="p1_type">PROJET 02 · LLM &amp; RAG</div>
+                            <h3>Local RAG Chatbot</h3>
+                            <ul class="project-list">
+                                <li data-i18n="p1_b1">Conception d'un chatbot de questions-réponses local et sécurisé utilisant LangChain et Chainlit pour interroger des documents PDF et TXT en garantissant la confidentialité des données.</li>
+                                <li data-i18n="p1_b2">Mise en place d'un pipeline RAG avec ChromaDB pour le stockage vectoriel et HuggingFaceEmbeddings, configuré pour s'exécuter sur CPU.</li>
+                                <li data-i18n="p1_b3">Intégration de Qwen2.5-1.5B-Instruct via LCEL avec l'algorithme de recherche MMR pour extraire un contexte diversifié.</li>
+                            </ul>
+                            <div class="tech-tags mb-4">
+                                <span class="tech-tag">LangChain</span>
+                                <span class="tech-tag">LCEL</span>
+                                <span class="tech-tag">Chainlit</span>
+                                <span class="tech-tag">ChromaDB</span>
+                                <span class="tech-tag">Qwen2.5-1.5B</span>
+                                <span class="tech-tag">Hugging Face</span>
+                                <span class="tech-tag">MMR</span>
+                                <span class="tech-tag">4-bit</span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-3 mt-auto">
+                                <a href="project-rag.html" class="btn btn-cyan btn-sm-cyan" data-i18n="btn_details1"><i class="bi bi-arrow-right-circle me-2"></i>Voir le projet</a>
+                                <a href="https://github.com/lydangphuckhang/Local_RAG_chatbot" target="_blank" class="btn btn-glass btn-sm-glass"><i class="bi bi-github me-2"></i>GitHub</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 3 -->
+                    <div class="col-lg-6">
+                        <div class="glass-card project-card h-100">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="icon-box indigo mb-3"><i class="bi bi-graph-up-arrow"></i></div>
+                                <a href="https://github.com/lydangphuckhang/Customer_churn_prediction" target="_blank" class="social-link" title="GitHub"><i class="bi bi-github"></i></a>
+                            </div>
+                            <div class="project-num" data-i18n="p2_type">PROJET 03 · MACHINE LEARNING</div>
+                            <h3>End-to-End Customer Churn Prediction</h3>
+                            <ul class="project-list">
+                                <li data-i18n="p2_b1">Développement d'un pipeline complet de Machine Learning pour prédire la probabilité et la classe d'attrition (churn) des clients.</li>
+                                <li data-i18n="p2_b2">Création d'une architecture de données robuste avec SQLite et implémentation de pipelines de prétraitement utilisant SMOTE.</li>
+                                <li data-i18n="p2_b3">Entraînement et optimisation de modèles XGBoost, Random Forest et Régression Logistique via GridSearchCV avec intégration de MLflow et Pytest.</li>
+                            </ul>
+                            <div class="tech-tags mb-4">
+                                <span class="tech-tag">Python</span>
+                                <span class="tech-tag">SQLite</span>
+                                <span class="tech-tag">Random Forest</span>
+                                <span class="tech-tag">XGBoost</span>
+                                <span class="tech-tag">Scikit-learn</span>
+                                <span class="tech-tag">MLflow</span>
+                                <span class="tech-tag">Pytest</span>
+                            </div>
+                            <div class="d-flex flex-wrap gap-3 mt-auto">
+                                <a href="project-churn.html" class="btn btn-cyan btn-sm-cyan" data-i18n="btn_details2"><i class="bi bi-arrow-right-circle me-2"></i>Voir le projet</a>
+                                <a href="https://github.com/lydangphuckhang/Customer_churn_prediction" target="_blank" class="btn btn-glass btn-sm-glass"><i class="bi bi-github me-2"></i>GitHub</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- More on GitHub -->
+        <section class="py-5" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container text-center py-4">
+                <h2 class="fs-2 fw-bold text-white mb-3" data-i18n="more_title">D'autres projets arrivent bientôt</h2>
+                <p class="text-secondary mb-4" data-i18n="more_desc">Retrouvez tout mon code et mes expérimentations sur GitHub.</p>
+                <a href="https://github.com/lydangphuckhang" target="_blank" class="btn btn-glass" data-i18n="btn_github_all"><i class="bi bi-github me-2"></i>Voir mon GitHub</a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto">
+        <div class="container text-center">
+            <p class="small text-secondary mb-0" data-i18n="footer">
+                &copy; 2026 Dang Phuc Khang Ly. Ingénieur IA / IA Industrielle.
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            var EN = {
+                btn_details1: "<i class=\"bi bi-arrow-right-circle me-2\"></i>View project",
+                btn_details2: "<i class=\"bi bi-arrow-right-circle me-2\"></i>View project",
+                btn_details3: "<i class=\"bi bi-arrow-right-circle me-2\"></i>View project",
+                btn_github_all: "<i class=\"bi bi-github me-2\"></i>View my GitHub",
+                footer: "&copy; 2026 Dang Phuc Khang Ly. AI Engineer / Industrial AI.",
+                more_desc: "Find all my code and experiments on GitHub.",
+                more_title: "More projects coming soon",
+                nav_about: "About &amp; Education",
+                nav_home: "Home",
+                nav_projects: "Projects",
+                p1_b1: "Designed a local and secure question-answering chatbot using LangChain and Chainlit to query PDF and TXT documents while ensuring data confidentiality.",
+                p1_b2: "Built a RAG pipeline with ChromaDB for vector storage and HuggingFaceEmbeddings, configured to run on CPU.",
+                p1_b3: "Integrated Qwen2.5-1.5B-Instruct via LCEL with the MMR search algorithm to retrieve diverse context.",
+                p1_type: "PROJECT 02 · LLM &amp; RAG",
+                p2_b1: "Developed a complete Machine Learning pipeline to predict customer churn probability and class.",
+                p2_b2: "Built a robust data architecture with SQLite and implemented preprocessing pipelines using SMOTE.",
+                p2_b3: "Trained and tuned XGBoost, Random Forest and Logistic Regression models with GridSearchCV, integrating MLflow and Pytest.",
+                p2_type: "PROJECT 03 · MACHINE LEARNING",
+                p3_b1: "Developed an automated visual inspection prototype that classifies casting parts as OK or NG (defective) from images.",
+                p3_b2: "Transfer Learning with a pre-trained ResNet18 (frozen backbone) and an OpenCV + PyTorch image pipeline with data augmentation.",
+                p3_b3: "99.02% accuracy on 715 test images, with a quality-engineering analysis of false positives and false negatives.",
+                p3_type: "PROJECT 01 · COMPUTER VISION",
+                p_badge: "<i class=\"bi bi-kanban-fill\"></i> Project Portfolio",
+                p_sub: "Hands-on AI and Machine Learning projects, from raw data to working application, built with a production-oriented mindset.",
+                p_title: "My <span class=\"gradient-text\">Projects</span>"
+            };
+            var META_EN = {
+                title: "Dang Phuc Khang Ly | Projects",
+                description: "AI and Machine Learning projects - Dang Phuc Khang Ly"
+            };
+
+            var nodes = document.querySelectorAll('[data-i18n]');
+            var FR = {};
+            nodes.forEach(function (el) { FR[el.getAttribute('data-i18n')] = el.innerHTML; });
+            var metaDesc = document.querySelector('meta[name="description"]');
+            var META_FR = { title: document.title, description: metaDesc ? metaDesc.getAttribute('content') : '' };
+
+            var current = 'fr';
+            function setLang(lang) {
+                var dict = lang === 'en' ? EN : FR;
+                var meta = lang === 'en' ? META_EN : META_FR;
+                nodes.forEach(function (el) {
+                    var key = el.getAttribute('data-i18n');
+                    if (dict[key] !== undefined) el.innerHTML = dict[key];
+                });
+                document.documentElement.lang = lang;
+                document.title = meta.title;
+                if (metaDesc) metaDesc.setAttribute('content', meta.description);
+                document.getElementById('langLabel').textContent = lang === 'en' ? 'EN' : 'FR';
+                current = lang;
+                try { localStorage.setItem('lang', lang); } catch (e) {}
+            }
+
+            document.getElementById('langToggle').addEventListener('click', function () {
+                setLang(current === 'fr' ? 'en' : 'fr');
+            });
+
+            var saved = null;
+            try { saved = localStorage.getItem('lang'); } catch (e) {}
+            if (saved === 'en') setLang('en');
+        })();
+    </script>
+    <!-- GA4 Event Tracking -->
+    <script>
+        document.addEventListener('click', function (e) {
+            var el = e.target.closest('a, #langToggle');
+            if (!el) return;
+            var page = location.pathname;
+            if (el.id === 'langToggle') {
+                var label = document.getElementById('langLabel');
+                gtag('event', 'switch_language', { page_path: page, toggle_label: label ? label.textContent : '' });
+                return;
+            }
+            var href = el.getAttribute('href') || '';
+            if (el.hasAttribute('download')) {
+                gtag('event', 'download_cv', { page_path: page });
+            } else if (href.indexOf('github.com') !== -1) {
+                gtag('event', 'click_github', { link_url: href, page_path: page });
+            } else if (href.indexOf('linkedin.com') !== -1) {
+                gtag('event', 'click_linkedin', { link_url: href, page_path: page });
+            } else if (href.indexOf('mailto:') === 0) {
+                gtag('event', 'click_email', { page_path: page });
+            } else if (href.indexOf('project-') === 0) {
+                gtag('event', 'view_project', { project_page: href, page_path: page });
+            } else if (href === 'resume.html' && el.classList.contains('btn')) {
+                gtag('event', 'click_cv_button', { page_path: page });
+            } else if (href === 'projects.html' && el.classList.contains('btn')) {
+                gtag('event', 'click_projects_button', { page_path: page });
+            }
+        });
+    </script>
+</body>
+</html>

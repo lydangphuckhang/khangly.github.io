@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Google Analytics 4 (gtag.js) -->
+    <script>
+        var GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // <-- Replace with your Measurement ID
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        if (/^G-[A-Z0-9]+$/.test(GA_MEASUREMENT_ID) && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+            var gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+            document.head.appendChild(gaScript);
+            gtag('js', new Date());
+            gtag('config', GA_MEASUREMENT_ID);
+        }
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Détection de défauts de surface industriels avec ResNet18 et OpenCV - Dang Phuc Khang Ly" />
+    <meta name="author" content="Dang Phuc Khang Ly" />
+    <title>Industrial Surface Defect Detection | Dang Phuc Khang Ly</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons & CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent-cyan: #38bdf8;
+            --accent-indigo: #818cf8;
+            --accent-blue: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #fff !important;
+        }
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-cyan) !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 90px 0 70px;
+            position: relative;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            color: var(--accent-cyan);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Profile Avatar */
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+        }
+        .avatar-glow {
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            border-radius: 28px;
+            filter: blur(15px);
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+        .avatar-container:hover .avatar-glow {
+            opacity: 0.95;
+        }
+        .avatar-img {
+            position: relative;
+            width: 320px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            z-index: 1;
+        }
+
+        /* Buttons */
+        .btn-cyan {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-cyan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.6);
+            color: #fff;
+        }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.8);
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .icon-box.cyan { background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); }
+        .icon-box.indigo { background: rgba(129, 140, 248, 0.12); color: var(--accent-indigo); }
+
+        /* Tech Tags */
+        .tech-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Social Links */
+        .social-link {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .social-link:hover {
+            background: var(--accent-cyan);
+            color: #0f172a;
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: #090d16;
+        }
+
+        .card-desc {
+            color: #cbd5e1;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-tag {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-cyan);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .lang-toggle:hover {
+            background: var(--accent-cyan);
+            color: #0f172a;
+        }
+
+        /* Project Pages */
+        .page-header {
+            padding: 70px 0 40px;
+            position: relative;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .page-header .container { position: relative; z-index: 1; }
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent-cyan); }
+        .lead-text {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            line-height: 1.75;
+            max-width: 760px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .section-title i { color: var(--accent-cyan); }
+        .section-sub {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .detail-section { padding: 40px 0; }
+
+        /* Project cards (overview) */
+        .project-card {
+            padding: 34px;
+            display: flex;
+            flex-direction: column;
+        }
+        .project-card .project-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .project-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 6px 0 16px;
+        }
+        .project-list {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            padding-left: 1.2rem;
+            margin-bottom: 22px;
+        }
+        .project-list li { margin-bottom: 8px; }
+        .project-list li::marker { color: var(--accent-cyan); }
+        .btn-sm-cyan, .btn-sm-glass {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Stats */
+        .stat-card {
+            text-align: center;
+            padding: 26px 18px;
+        }
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Pipeline flow */
+        .flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .flow-step {
+            flex: 1 1 150px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px 16px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .flow-step:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-3px);
+        }
+        .flow-step .step-num {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .flow-step .step-icon {
+            font-size: 1.4rem;
+            color: var(--accent-indigo);
+            margin: 6px 0 8px;
+        }
+        .flow-step h6 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+        .flow-step p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+        }
+        @media (max-width: 767px) {
+            .flow { flex-direction: column; }
+            .flow-arrow { justify-content: center; transform: rotate(90deg); }
+        }
+        .flow-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+        .flow-label .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 12px var(--accent-cyan);
+        }
+        .flow-label .dot.indigo {
+            background: var(--accent-indigo);
+            box-shadow: 0 0 12px var(--accent-indigo);
+        }
+
+        /* Feature cards */
+        .feature-card h5 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+        .feature-card p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #0b1120;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .code-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .code-head .dots span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 4px;
+            background: rgba(148, 163, 184, 0.3);
+        }
+        .code-block pre {
+            margin: 0;
+            padding: 18px 20px;
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        .code-block .c { color: #64748b; }
+        .code-block .k { color: #c084fc; }
+        .code-block .s { color: #7dd3fc; }
+        .code-block .f { color: #818cf8; }
+
+        /* Config table */
+        .config-table {
+            width: 100%;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        .config-table td {
+            padding: 11px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .config-table tr:last-child td { border-bottom: none; }
+        .config-table td:last-child {
+            text-align: right;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Chat demo */
+        .chat-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .chat-bubble.user {
+            margin-left: auto;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble.bot {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-bubble.rewrite {
+            margin: 0 auto 12px;
+            background: rgba(129, 140, 248, 0.1);
+            border: 1px dashed rgba(129, 140, 248, 0.5);
+            color: #c7d2fe;
+            font-size: 0.85rem;
+        }
+        .chat-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Result bar */
+        .result-bar {
+            display: flex;
+            height: 38px;
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .result-bar .hit {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+        }
+        .result-bar .miss {
+            background: rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 14px;
+        }
+
+        .check-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+            color: #cbd5e1;
+            font-size: 0.92rem;
+        }
+        .check-list li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .check-list li i { color: var(--accent-cyan); margin-top: 2px; }
+        .check-list.indigo li i { color: var(--accent-indigo); }
+
+        main code {
+            color: #7dd3fc;
+        }
+        .cta-card {
+            text-align: center;
+            padding: 44px 30px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(129, 140, 248, 0.12));
+        }
+
+
+        /* Industrial criteria */
+        .status-pill {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+        }
+        .status-pill.ok {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: var(--accent-cyan);
+        }
+        .status-pill.todo {
+            background: rgba(129, 140, 248, 0.12);
+            border: 1px solid rgba(129, 140, 248, 0.35);
+            color: var(--accent-indigo);
+        }
+        /* Confusion matrix */
+        .cm-grid {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr;
+            gap: 10px;
+            align-items: stretch;
+        }
+        .cm-head {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            align-self: end;
+        }
+        .cm-row-head {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 6px;
+            text-align: right;
+        }
+        .cm-cell {
+            border-radius: 14px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+        .cm-cell .cm-val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        .cm-cell .cm-lbl {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .cm-cell.good {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #e0f2fe;
+        }
+        .cm-cell.bad {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fecaca;
+        }
+        .cm-axis {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column h-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <span class="fs-4 gradient-text fw-bold">KHANGLY.PORTFOLIO</span>
+            </a>
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-3">
+                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav_home">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="resume.html" data-i18n="nav_about">À Propos & Éducation</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="projects.html" data-i18n="nav_projects">Projets</a></li>
+                </ul>
+                <button type="button" id="langToggle" class="lang-toggle ms-lg-4 mt-2 mt-lg-0" aria-label="Switch language">
+                    <i class="bi bi-translate"></i><span id="langLabel">FR</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+
+        <!-- Project Header -->
+        <section class="page-header">
+            <div class="container">
+                <a href="projects.html" class="back-link" data-i18n="back"><i class="bi bi-arrow-left"></i> Retour aux projets</a>
+                <div class="d-block"><div class="tech-badge" data-i18n="badge"><i class="bi bi-camera-fill"></i> Projet IA · Computer Vision</div></div>
+                <h1 class="display-4 fw-bold mb-3"><span class="gradient-text">Industrial Surface Defect Detection</span></h1>
+                <p class="lead-text mb-4" data-i18n="lead">Un prototype de bout en bout pour l'<span class="text-white fw-semibold">inspection visuelle automatisée</span> en production industrielle : un réseau de neurones convolutif classe des images de pièces de fonderie en <span class="text-white fw-semibold">OK</span> ou <span class="text-white fw-semibold">NG (défectueuses)</span> pour appuyer le contrôle qualité.</p>
+                <div class="tech-tags mb-4">
+                    <span class="tech-tag">PyTorch</span>
+                    <span class="tech-tag">Torchvision</span>
+                    <span class="tech-tag">ResNet18</span>
+                    <span class="tech-tag">Transfer Learning</span>
+                    <span class="tech-tag">OpenCV</span>
+                    <span class="tech-tag">Scikit-learn</span>
+                    <span class="tech-tag">Pytest</span>
+                </div>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="https://github.com/lydangphuckhang/Industrial-surface-defect-detection" target="_blank" class="btn btn-cyan" data-i18n="btn_gh"><i class="bi bi-github me-2"></i>Voir le code sur GitHub</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="pb-4">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text" data-i18n="s1_v">99,02 %</div><div class="stat-label" data-i18n="s1_l">Accuracy sur le jeu de test</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text" data-i18n="s2_v">99,1 %</div><div class="stat-label" data-i18n="s2_l">Recall sur la classe NG</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text" data-i18n="s3_v">99,3 %</div><div class="stat-label" data-i18n="s3_l">Précision sur la classe NG</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text">715</div><div class="stat-label" data-i18n="s4_l">Images de test évaluées</div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Context -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-gear-wide-connected"></i><span data-i18n="ctx_title">Contexte industriel</span></h2>
+                <p class="section-sub" data-i18n="ctx_sub">Pourquoi automatiser l'inspection de surface ?</p>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-eye-slash-fill"></i></div>
+                            <h5 data-i18n="pb_t">Le problème</h5>
+                            <p data-i18n="pb_d">L'inspection visuelle manuelle est lente et sujette à l'erreur humaine : la fatigue et les jugements variables d'un opérateur à l'autre laissent passer des défauts ou rejettent des pièces conformes.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-cpu-fill"></i></div>
+                            <h5 data-i18n="sol_t">La solution</h5>
+                            <p data-i18n="sol_d">Un modèle de classification d'images basé sur un CNN et le Transfer Learning, qui rend l'inspection plus régulière et aide à réduire le risque qu'un produit défectueux arrive chez le client.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pipeline -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-diagram-3-fill"></i><span data-i18n="pipe_title">Pipeline</span></h2>
+                <p class="section-sub" data-i18n="pipe_sub">Une chaîne modulaire qui combine Computer Vision classique et Deep Learning.</p>
+                <div class="flow">
+                    <div class="flow-step">
+                        <div class="step-num">01</div>
+                        <div class="step-icon"><i class="bi bi-image"></i></div>
+                        <h6 data-i18n="p1_t">Image d'entrée</h6>
+                        <p data-i18n="p1_d">Photos de pièces de fonderie (dataset Kaggle Casting Product)</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">02</div>
+                        <div class="step-icon"><i class="bi bi-sliders"></i></div>
+                        <h6 data-i18n="p2_t">Prétraitement OpenCV</h6>
+                        <p data-i18n="p2_d">Conversion RGB et redimensionnement en 224 × 224</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">03</div>
+                        <div class="step-icon"><i class="bi bi-boxes"></i></div>
+                        <h6 data-i18n="p3_t">Data pipeline PyTorch</h6>
+                        <p data-i18n="p3_d">Tenseurs, normalisation ImageNet, flips aléatoires à l'entraînement</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">04</div>
+                        <div class="step-icon"><i class="bi bi-diagram-2"></i></div>
+                        <h6 data-i18n="p4_t">ResNet18</h6>
+                        <p data-i18n="p4_d">Backbone pré-entraîné gelé, nouvelle tête à 2 classes</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">05</div>
+                        <div class="step-icon"><i class="bi bi-check2-circle"></i></div>
+                        <h6 data-i18n="p5_t">Évaluation &amp; inférence</h6>
+                        <p data-i18n="p5_d">Matrice de confusion, prédiction OK/NG avec score de confiance</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Model & training -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-layers-fill"></i><span data-i18n="model_title">Modèle &amp; entraînement</span></h2>
+                <p class="section-sub" data-i18n="model_sub">Transfer Learning en mode extraction de caractéristiques : seule la tête de classification est entraînée.</p>
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-3" data-i18n="cfg_title">Configuration</h5>
+                            <table class="config-table">
+                                <tr><td data-i18n="cfg1">Architecture</td><td data-i18n="cfg_v1">ResNet18 (ImageNet)</td></tr>
+                                <tr><td data-i18n="cfg2">Mode</td><td data-i18n="cfg_v2">Backbone gelé</td></tr>
+                                <tr><td data-i18n="cfg3">Taille d'entrée</td><td>224 × 224</td></tr>
+                                <tr><td data-i18n="cfg4">Classes</td><td>OK / NG</td></tr>
+                                <tr><td data-i18n="cfg5">Batch size</td><td>32</td></tr>
+                                <tr><td data-i18n="cfg6">Époques</td><td>10</td></tr>
+                                <tr><td data-i18n="cfg7">Optimiseur</td><td>Adam</td></tr>
+                                <tr><td data-i18n="cfg8">Learning rate</td><td>0.001</td></tr>
+                                <tr><td data-i18n="cfg9">Fonction de perte</td><td>CrossEntropy</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 d-flex flex-column gap-4">
+                        <div class="code-block">
+                            <div class="code-head"><span class="dots"><span></span><span></span><span></span></span>src/model.py</div>
+<pre><span class="c"># Transfer Learning with a pre-trained ResNet18</span>
+<span class="k">self</span>.backbone = <span class="f">resnet18</span>(weights=ResNet18_Weights.IMAGENET1K_V1)
+
+<span class="k">if not</span> fine_tune:                      <span class="c"># feature extraction mode</span>
+    <span class="k">for</span> param <span class="k">in</span> <span class="k">self</span>.backbone.<span class="f">parameters</span>():
+        param.requires_grad = <span class="k">False</span>     <span class="c"># freeze the backbone</span>
+
+<span class="c"># Replace the 1000-class head with a 2-class head (OK / NG)</span>
+in_features = <span class="k">self</span>.backbone.fc.in_features
+<span class="k">self</span>.backbone.fc = nn.<span class="f">Linear</span>(in_features, num_classes)</pre>
+                        </div>
+                        <div class="glass-card feature-card flex-grow-1">
+                            <h5 data-i18n="why_t">Pourquoi le Transfer Learning ?</h5>
+                            <p data-i18n="why_d">ResNet18 a déjà appris à reconnaître bords, textures et formes sur ImageNet. En gelant ces couches et en n'entraînant que la dernière couche, le modèle atteint une très bonne précision avec peu de calcul et peu de risque de sur-apprentissage.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-bar-chart-fill"></i><span data-i18n="res_title">Résultats</span></h2>
+                <p class="section-sub" data-i18n="res_sub">Matrice de confusion sur 715 images de test (NG = classe positive).</p>
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="glass-card h-100">
+                            <div class="cm-grid">
+                                <div></div>
+                                <div class="cm-head">OK</div>
+                                <div class="cm-head">NG</div>
+                                <div class="cm-row-head" data-i18n="cm_real_ok">Réel OK</div>
+                                <div class="cm-cell good"><div class="cm-val">259</div><div class="cm-lbl" data-i18n="cm_tn">Vrais négatifs</div></div>
+                                <div class="cm-cell bad"><div class="cm-val">3</div><div class="cm-lbl" data-i18n="cm_fp">Faux positifs</div></div>
+                                <div class="cm-row-head" data-i18n="cm_real_ng">Réel NG</div>
+                                <div class="cm-cell bad"><div class="cm-val">4</div><div class="cm-lbl" data-i18n="cm_fn">Faux négatifs</div></div>
+                                <div class="cm-cell good"><div class="cm-val">449</div><div class="cm-lbl" data-i18n="cm_tp">Vrais positifs</div></div>
+                            </div>
+                            <div class="cm-axis" data-i18n="cm_pred">Prédiction</div>
+                            <p class="card-desc text-center small mt-3 mb-0" data-i18n="cm_note">708 images correctement classées sur 715</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-3" data-i18n="qe_t">Lecture « ingénieur qualité »</h5>
+                            <p class="card-desc" data-i18n="qe_d">En contrôle qualité, toutes les erreurs n'ont pas le même coût :</p>
+                            <ul class="check-list mb-3">
+                                <li><i class="bi bi-recycle"></i><span data-i18n="qe_fp"><span class="text-white fw-semibold">3 faux positifs :</span> pièces conformes rejetées à tort, d'où plus de rebuts, de contrôles manuels et une efficacité de production réduite.</span></li>
+                                <li><i class="bi bi-exclamation-triangle-fill" style="color: #f87171;"></i><span data-i18n="qe_fn"><span class="text-white fw-semibold">4 faux négatifs :</span> pièces défectueuses acceptées qui peuvent arriver chez le client : réclamations, coûts de garantie, risque qualité.</span></li>
+                            </ul>
+                            <p class="small mb-0" style="color: var(--accent-cyan);" data-i18n="qe_next"><i class="bi bi-lightbulb me-1"></i> Piste d'amélioration : abaisser le seuil de décision de la classe NG pour réduire les faux négatifs, en trouvant le bon compromis avec les rejets inutiles selon les exigences du procédé.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Industrial reading -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-clipboard2-check-fill"></i><span data-i18n="ind_title">Lecture industrielle des résultats</span></h2>
+                <p class="section-sub" data-i18n="ind_sub">Les critères qui servent à juger un outil de contrôle visuel en production, appliqués à ce prototype : ce qui est mesuré et ce qui reste à évaluer.</p>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="glass-card feature-card h-100">
+                            <span class="status-pill ok" data-i18n="c1_s">Mesuré</span>
+                            <h5><i class="bi bi-bullseye me-2" style="color: var(--accent-cyan);"></i><span data-i18n="c1_t">Fiabilité</span></h5>
+                            <p data-i18n="c1_d">708 images sur 715 correctement classées ; 449 des 453 pièces NG détectées et 3 pièces OK rejetées à tort.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="glass-card feature-card h-100">
+                            <span class="status-pill ok" data-i18n="c2_s">Par conception</span>
+                            <h5><i class="bi bi-arrow-repeat me-2" style="color: var(--accent-cyan);"></i><span data-i18n="c2_t">Répétabilité</span></h5>
+                            <p data-i18n="c2_d">En inférence, le modèle tourne en mode évaluation, sans augmentation de données et avec le même prétraitement qu'à l'entraînement : une même image donne toujours la même décision.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="glass-card feature-card h-100">
+                            <span class="status-pill todo" data-i18n="c3_s">À mesurer</span>
+                            <h5><i class="bi bi-speedometer2 me-2" style="color: var(--accent-indigo);"></i><span data-i18n="c3_t">Rapidité</span></h5>
+                            <p data-i18n="c3_d">Le temps d'inférence n'a pas encore été mesuré. L'optimisation de la vitesse en vue d'un déploiement industriel fait partie des prochaines étapes.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="glass-card feature-card h-100">
+                            <span class="status-pill todo" data-i18n="c4_s">Prochaine étape</span>
+                            <h5><i class="bi bi-bounding-box me-2" style="color: var(--accent-indigo);"></i><span data-i18n="c4_t">Types de défauts</span></h5>
+                            <p data-i18n="c4_d">Le modèle actuel donne une décision binaire OK / NG. La détection d'objets et la localisation des défauts sur la pièce sont les pistes suivantes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Engineering -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-code-square"></i><span data-i18n="eng_title">Qualité du code</span></h2>
+                <p class="section-sub" data-i18n="eng_sub">Un projet structuré comme un vrai pipeline, du prétraitement à l'inférence.</p>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-arrow-repeat"></i></div>
+                            <h5 data-i18n="f1_t">Prétraitement unique</h5>
+                            <p data-i18n="f1_d">La même fonction de prétraitement sert à l'entraînement et à l'inférence, pour éviter tout écart entre les deux.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-tools"></i></div>
+                            <h5 data-i18n="f2_t">Boîte à outils OpenCV</h5>
+                            <p data-i18n="f2_d">Flou gaussien, seuillage, détection de contours Canny, érosion, dilatation, ouverture et fermeture morphologiques.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-check2-square"></i></div>
+                            <h5 data-i18n="f3_t">18 tests Pytest</h5>
+                            <p data-i18n="f3_d">Chaque fonction de prétraitement est testée, y compris la gestion des entrées invalides.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-terminal-fill"></i></div>
+                            <h5 data-i18n="f4_t">Inférence en ligne de commande</h5>
+                            <p data-i18n="f4_d"><code>predict.py</code> renvoie la classe OK/NG et un score de confiance (softmax) pour une image.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-grid-3x3-gap-fill"></i></div>
+                            <h5 data-i18n="f5_t">Code modulaire</h5>
+                            <p data-i18n="f5_d">Modules séparés : prétraitement, dataset, modèle, entraînement, évaluation.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-save-fill"></i></div>
+                            <h5 data-i18n="f6_t">Sauvegarde du meilleur modèle</h5>
+                            <p data-i18n="f6_d">Les poids sont enregistrés à chaque amélioration de l'accuracy de validation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Next steps & stack -->
+        <section class="detail-section">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-3"><i class="bi bi-rocket-takeoff me-2" style="color: var(--accent-cyan);"></i><span data-i18n="next_title">Prochaines étapes</span></h5>
+                            <ul class="check-list">
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="n1">Comparer d'autres architectures CNN.</span></li>
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="n2">Optimiser le seuil de décision pour réduire les faux négatifs.</span></li>
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="n3">Tester la généralisation sur de nouvelles images industrielles.</span></li>
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="n4">Aller vers la détection d'objets et la localisation des défauts.</span></li>
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="n5">Accélérer l'inférence pour un déploiement en production.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-3"><i class="bi bi-stack me-2" style="color: var(--accent-indigo);"></i><span data-i18n="stack_title">Stack technique</span></h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="tech-chip">Python</span>
+                                <span class="tech-chip">PyTorch</span>
+                                <span class="tech-chip">Torchvision</span>
+                                <span class="tech-chip">OpenCV</span>
+                                <span class="tech-chip">NumPy</span>
+                                <span class="tech-chip">Scikit-learn</span>
+                                <span class="tech-chip">Matplotlib</span>
+                                <span class="tech-chip">Pytest</span>
+                                <span class="tech-chip">Jupyter</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="py-5">
+            <div class="container py-3">
+                <div class="glass-card cta-card">
+                    <h2 class="fs-2 fw-bold text-white mb-3" data-i18n="cta_t">Envie de voir le code ?</h2>
+                    <p class="text-secondary mb-4 mx-auto" style="max-width: 560px;" data-i18n="cta_d">Le code source, les tests et les instructions pour entraîner, évaluer et lancer une prédiction sont disponibles sur GitHub.</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="https://github.com/lydangphuckhang/Industrial-surface-defect-detection" target="_blank" class="btn btn-cyan" data-i18n="cta_btn"><i class="bi bi-github me-2"></i>Industrial-surface-defect-detection sur GitHub</a>
+                        <a href="projects.html" class="btn btn-glass" data-i18n="cta_back"><i class="bi bi-grid me-2"></i>Tous les projets</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto">
+        <div class="container text-center">
+            <p class="small text-secondary mb-0" data-i18n="footer">
+                &copy; 2026 Dang Phuc Khang Ly. Ingénieur IA / IA Industrielle.
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            var EN = {
+                back: "<i class=\"bi bi-arrow-left\"></i> Back to projects",
+                badge: "<i class=\"bi bi-camera-fill\"></i> AI Project · Computer Vision",
+                btn_gh: "<i class=\"bi bi-github me-2\"></i>View code on GitHub",
+                c1_d: "708 of 715 images correctly classified; 449 of the 453 NG parts detected and 3 OK parts wrongly rejected.",
+                c1_s: "Measured",
+                c1_t: "Reliability",
+                c2_d: "At inference, the model runs in evaluation mode, without data augmentation and with the same preprocessing as in training: the same image always gets the same decision.",
+                c2_s: "By design",
+                c2_t: "Repeatability",
+                c3_d: "Inference time has not been measured yet. Optimizing speed for industrial deployment is one of the next steps.",
+                c3_s: "To be measured",
+                c3_t: "Speed",
+                c4_d: "The current model gives a binary OK / NG decision. Object detection and localizing defects on the part are the next directions.",
+                c4_s: "Next step",
+                c4_t: "Defect types",
+                cfg1: "Architecture",
+                cfg2: "Mode",
+                cfg3: "Input size",
+                cfg4: "Classes",
+                cfg5: "Batch size",
+                cfg6: "Epochs",
+                cfg7: "Optimizer",
+                cfg8: "Learning rate",
+                cfg9: "Loss function",
+                cfg_title: "Configuration",
+                cfg_v1: "ResNet18 (ImageNet)",
+                cfg_v2: "Frozen backbone",
+                cm_fn: "False negatives",
+                cm_fp: "False positives",
+                cm_note: "708 of 715 images correctly classified",
+                cm_pred: "Prediction",
+                cm_real_ng: "Actual NG",
+                cm_real_ok: "Actual OK",
+                cm_tn: "True negatives",
+                cm_tp: "True positives",
+                cta_back: "<i class=\"bi bi-grid me-2\"></i>All projects",
+                cta_btn: "<i class=\"bi bi-github me-2\"></i>Industrial-surface-defect-detection on GitHub",
+                cta_d: "The source code, tests and instructions to train, evaluate and run a prediction are available on GitHub.",
+                cta_t: "Want to see the code?",
+                ctx_sub: "Why automate surface inspection?",
+                ctx_title: "Industrial context",
+                eng_sub: "A project structured like a real pipeline, from preprocessing to inference.",
+                eng_title: "Code quality",
+                f1_d: "The same preprocessing function is used for training and inference, avoiding any mismatch between the two.",
+                f1_t: "Single preprocessing path",
+                f2_d: "Gaussian blur, thresholding, Canny edge detection, erosion, dilation, morphological opening and closing.",
+                f2_t: "OpenCV toolkit",
+                f3_d: "Every preprocessing function is tested, including invalid input handling.",
+                f3_t: "18 Pytest tests",
+                f4_d: "<code>predict.py</code> returns the OK/NG class and a confidence score (softmax) for one image.",
+                f4_t: "Command-line inference",
+                f5_d: "Separate modules: preprocessing, dataset, model, training, evaluation.",
+                f5_t: "Modular code",
+                f6_d: "Weights are saved whenever validation accuracy improves.",
+                f6_t: "Best model checkpoint",
+                footer: "&copy; 2026 Dang Phuc Khang Ly. AI Engineer / Industrial AI.",
+                ind_sub: "The criteria used to judge a visual inspection tool in production, applied to this prototype: what is measured and what remains to be evaluated.",
+                ind_title: "Industrial reading of the results",
+                lead: "An end-to-end prototype for <span class=\"text-white fw-semibold\">automated visual inspection</span> in industrial manufacturing: a convolutional neural network classifies images of casting parts as <span class=\"text-white fw-semibold\">OK</span> or <span class=\"text-white fw-semibold\">NG (defective)</span> to support quality control.",
+                model_sub: "Transfer Learning in feature-extraction mode: only the classification head is trained.",
+                model_title: "Model &amp; training",
+                n1: "Compare other CNN architectures.",
+                n2: "Optimize the decision threshold to reduce false negatives.",
+                n3: "Test generalization on new industrial images.",
+                n4: "Move toward object detection and defect localization.",
+                n5: "Speed up inference for production deployment.",
+                nav_about: "About &amp; Education",
+                nav_home: "Home",
+                nav_projects: "Projects",
+                next_title: "Next steps",
+                p1_d: "Photos of casting parts (Kaggle Casting Product dataset)",
+                p1_t: "Input image",
+                p2_d: "RGB conversion and resizing to 224 × 224",
+                p2_t: "OpenCV preprocessing",
+                p3_d: "Tensors, ImageNet normalization, random flips during training",
+                p3_t: "PyTorch data pipeline",
+                p4_d: "Frozen pre-trained backbone, new 2-class head",
+                p4_t: "ResNet18",
+                p5_d: "Confusion matrix, OK/NG prediction with confidence score",
+                p5_t: "Evaluation &amp; inference",
+                pb_d: "Manual visual inspection is slow and prone to human error: fatigue and inconsistent judgment between operators let defects slip through or reject good parts.",
+                pb_t: "The problem",
+                pipe_sub: "A modular pipeline combining classical Computer Vision and Deep Learning.",
+                pipe_title: "Pipeline",
+                qe_d: "In quality control, not all errors cost the same:",
+                qe_fn: "<span class=\"text-white fw-semibold\">4 false negatives:</span> defective parts accepted that may reach customers: complaints, warranty costs, quality risk.",
+                qe_fp: "<span class=\"text-white fw-semibold\">3 false positives:</span> good parts wrongly rejected, leading to more scrap, extra manual checks and lower production efficiency.",
+                qe_next: "<i class=\"bi bi-lightbulb me-1\"></i> Next improvement: lower the decision threshold for the NG class to reduce false negatives, finding the right trade-off with unnecessary rejections based on process requirements.",
+                qe_t: "Quality engineering view",
+                res_sub: "Confusion matrix on 715 test images (NG = positive class).",
+                res_title: "Results",
+                s1_l: "Accuracy on the test set",
+                s1_v: "99.02%",
+                s2_l: "Recall on the NG class",
+                s2_v: "99.1%",
+                s3_l: "Precision on the NG class",
+                s3_v: "99.3%",
+                s4_l: "Test images evaluated",
+                sol_d: "An image classification model based on a CNN and Transfer Learning that makes inspection more consistent and helps reduce the risk of defective products reaching customers.",
+                sol_t: "The solution",
+                stack_title: "Tech stack",
+                why_d: "ResNet18 has already learned to recognize edges, textures and shapes on ImageNet. By freezing these layers and training only the last layer, the model reaches very high accuracy with little compute and low risk of overfitting.",
+                why_t: "Why Transfer Learning?"
+            };
+            var META_EN = {
+                title: "Industrial Surface Defect Detection | Dang Phuc Khang Ly",
+                description: "Industrial surface defect detection with ResNet18 and OpenCV - Dang Phuc Khang Ly"
+            };
+
+            var nodes = document.querySelectorAll('[data-i18n]');
+            var FR = {};
+            nodes.forEach(function (el) { FR[el.getAttribute('data-i18n')] = el.innerHTML; });
+            var metaDesc = document.querySelector('meta[name="description"]');
+            var META_FR = { title: document.title, description: metaDesc ? metaDesc.getAttribute('content') : '' };
+
+            var current = 'fr';
+            function setLang(lang) {
+                var dict = lang === 'en' ? EN : FR;
+                var meta = lang === 'en' ? META_EN : META_FR;
+                nodes.forEach(function (el) {
+                    var key = el.getAttribute('data-i18n');
+                    if (dict[key] !== undefined) el.innerHTML = dict[key];
+                });
+                document.documentElement.lang = lang;
+                document.title = meta.title;
+                if (metaDesc) metaDesc.setAttribute('content', meta.description);
+                document.getElementById('langLabel').textContent = lang === 'en' ? 'EN' : 'FR';
+                current = lang;
+                try { localStorage.setItem('lang', lang); } catch (e) {}
+            }
+
+            document.getElementById('langToggle').addEventListener('click', function () {
+                setLang(current === 'fr' ? 'en' : 'fr');
+            });
+
+            var saved = null;
+            try { saved = localStorage.getItem('lang'); } catch (e) {}
+            if (saved === 'en') setLang('en');
+        })();
+    </script>
+    <!-- GA4 Event Tracking -->
+    <script>
+        document.addEventListener('click', function (e) {
+            var el = e.target.closest('a, #langToggle');
+            if (!el) return;
+            var page = location.pathname;
+            if (el.id === 'langToggle') {
+                var label = document.getElementById('langLabel');
+                gtag('event', 'switch_language', { page_path: page, toggle_label: label ? label.textContent : '' });
+                return;
+            }
+            var href = el.getAttribute('href') || '';
+            if (el.hasAttribute('download')) {
+                gtag('event', 'download_cv', { page_path: page });
+            } else if (href.indexOf('github.com') !== -1) {
+                gtag('event', 'click_github', { link_url: href, page_path: page });
+            } else if (href.indexOf('linkedin.com') !== -1) {
+                gtag('event', 'click_linkedin', { link_url: href, page_path: page });
+            } else if (href.indexOf('mailto:') === 0) {
+                gtag('event', 'click_email', { page_path: page });
+            } else if (href.indexOf('project-') === 0) {
+                gtag('event', 'view_project', { project_page: href, page_path: page });
+            } else if (href === 'resume.html' && el.classList.contains('btn')) {
+                gtag('event', 'click_cv_button', { page_path: page });
+            } else if (href === 'projects.html' && el.classList.contains('btn')) {
+                gtag('event', 'click_projects_button', { page_path: page });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Google Analytics 4 (gtag.js) -->
+    <script>
+        var GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // <-- Replace with your Measurement ID
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        if (/^G-[A-Z0-9]+$/.test(GA_MEASUREMENT_ID) && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+            var gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+            document.head.appendChild(gaScript);
+            gtag('js', new Date());
+            gtag('config', GA_MEASUREMENT_ID);
+        }
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Pipeline ML de prédiction du churn client avec SMOTE et Random Forest - Dang Phuc Khang Ly" />
+    <meta name="author" content="Dang Phuc Khang Ly" />
+    <title>Customer Churn Prediction | Dang Phuc Khang Ly</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons & CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent-cyan: #38bdf8;
+            --accent-indigo: #818cf8;
+            --accent-blue: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #fff !important;
+        }
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-cyan) !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 90px 0 70px;
+            position: relative;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            color: var(--accent-cyan);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Profile Avatar */
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+        }
+        .avatar-glow {
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            border-radius: 28px;
+            filter: blur(15px);
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+        .avatar-container:hover .avatar-glow {
+            opacity: 0.95;
+        }
+        .avatar-img {
+            position: relative;
+            width: 320px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            z-index: 1;
+        }
+
+        /* Buttons */
+        .btn-cyan {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-cyan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.6);
+            color: #fff;
+        }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.8);
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .icon-box.cyan { background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); }
+        .icon-box.indigo { background: rgba(129, 140, 248, 0.12); color: var(--accent-indigo); }
+
+        /* Tech Tags */
+        .tech-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Social Links */
+        .social-link {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .social-link:hover {
+            background: var(--accent-cyan);
+            color: #0f172a;
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: #090d16;
+        }
+
+        .card-desc {
+            color: #cbd5e1;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-tag {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-cyan);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .lang-toggle:hover {
+            background: var(--accent-cyan);
+            color: #0f172a;
+        }
+
+        /* Project Pages */
+        .page-header {
+            padding: 70px 0 40px;
+            position: relative;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .page-header .container { position: relative; z-index: 1; }
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent-cyan); }
+        .lead-text {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            line-height: 1.75;
+            max-width: 760px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .section-title i { color: var(--accent-cyan); }
+        .section-sub {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .detail-section { padding: 40px 0; }
+
+        /* Project cards (overview) */
+        .project-card {
+            padding: 34px;
+            display: flex;
+            flex-direction: column;
+        }
+        .project-card .project-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .project-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 6px 0 16px;
+        }
+        .project-list {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            padding-left: 1.2rem;
+            margin-bottom: 22px;
+        }
+        .project-list li { margin-bottom: 8px; }
+        .project-list li::marker { color: var(--accent-cyan); }
+        .btn-sm-cyan, .btn-sm-glass {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Stats */
+        .stat-card {
+            text-align: center;
+            padding: 26px 18px;
+        }
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Pipeline flow */
+        .flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .flow-step {
+            flex: 1 1 150px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px 16px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .flow-step:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-3px);
+        }
+        .flow-step .step-num {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .flow-step .step-icon {
+            font-size: 1.4rem;
+            color: var(--accent-indigo);
+            margin: 6px 0 8px;
+        }
+        .flow-step h6 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+        .flow-step p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+        }
+        @media (max-width: 767px) {
+            .flow { flex-direction: column; }
+            .flow-arrow { justify-content: center; transform: rotate(90deg); }
+        }
+        .flow-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+        .flow-label .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 12px var(--accent-cyan);
+        }
+        .flow-label .dot.indigo {
+            background: var(--accent-indigo);
+            box-shadow: 0 0 12px var(--accent-indigo);
+        }
+
+        /* Feature cards */
+        .feature-card h5 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+        .feature-card p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #0b1120;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .code-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .code-head .dots span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 4px;
+            background: rgba(148, 163, 184, 0.3);
+        }
+        .code-block pre {
+            margin: 0;
+            padding: 18px 20px;
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        .code-block .c { color: #64748b; }
+        .code-block .k { color: #c084fc; }
+        .code-block .s { color: #7dd3fc; }
+        .code-block .f { color: #818cf8; }
+
+        /* Config table */
+        .config-table {
+            width: 100%;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        .config-table td {
+            padding: 11px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .config-table tr:last-child td { border-bottom: none; }
+        .config-table td:last-child {
+            text-align: right;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Chat demo */
+        .chat-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .chat-bubble.user {
+            margin-left: auto;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble.bot {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-bubble.rewrite {
+            margin: 0 auto 12px;
+            background: rgba(129, 140, 248, 0.1);
+            border: 1px dashed rgba(129, 140, 248, 0.5);
+            color: #c7d2fe;
+            font-size: 0.85rem;
+        }
+        .chat-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Result bar */
+        .result-bar {
+            display: flex;
+            height: 38px;
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .result-bar .hit {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+        }
+        .result-bar .miss {
+            background: rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 14px;
+        }
+
+        .check-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+            color: #cbd5e1;
+            font-size: 0.92rem;
+        }
+        .check-list li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .check-list li i { color: var(--accent-cyan); margin-top: 2px; }
+        .check-list.indigo li i { color: var(--accent-indigo); }
+
+        main code {
+            color: #7dd3fc;
+        }
+        .cta-card {
+            text-align: center;
+            padding: 44px 30px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(129, 140, 248, 0.12));
+        }
+    </style>
+</head>
+<body class="d-flex flex-column h-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <span class="fs-4 gradient-text fw-bold">KHANGLY.PORTFOLIO</span>
+            </a>
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-3">
+                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav_home">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="resume.html" data-i18n="nav_about">À Propos & Éducation</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="projects.html" data-i18n="nav_projects">Projets</a></li>
+                </ul>
+                <button type="button" id="langToggle" class="lang-toggle ms-lg-4 mt-2 mt-lg-0" aria-label="Switch language">
+                    <i class="bi bi-translate"></i><span id="langLabel">FR</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+
+        <!-- Project Header -->
+        <section class="page-header">
+            <div class="container">
+                <a href="projects.html" class="back-link" data-i18n="back"><i class="bi bi-arrow-left"></i> Retour aux projets</a>
+                <div class="d-block"><div class="tech-badge" data-i18n="badge"><i class="bi bi-graph-up-arrow"></i> Projet ML · Classification</div></div>
+                <h1 class="display-4 fw-bold mb-3"><span class="gradient-text">End-to-End Customer Churn Prediction</span></h1>
+                <p class="lead-text mb-4" data-i18n="lead">Un pipeline de Machine Learning de bout en bout qui prédit quels clients d'un opérateur télécom risquent de résilier leur abonnement, afin de <span class="text-white fw-semibold">cibler les actions de fidélisation avant qu'il ne soit trop tard</span>.</p>
+                <div class="tech-tags mb-4">
+                    <span class="tech-tag">Python</span>
+                    <span class="tech-tag">Pandas</span>
+                    <span class="tech-tag">SQLite</span>
+                    <span class="tech-tag">Scikit-learn</span>
+                    <span class="tech-tag">Imbalanced-learn (SMOTE)</span>
+                    <span class="tech-tag">Random Forest</span>
+                    <span class="tech-tag">XGBoost</span>
+                </div>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="https://github.com/lydangphuckhang/Customer_churn_prediction" target="_blank" class="btn btn-cyan" data-i18n="btn_gh"><i class="bi bi-github me-2"></i>Voir le code sur GitHub</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="pb-4">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text" data-i18n="s1_v">7 043</div><div class="stat-label" data-i18n="s1_l">Clients analysés</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text" data-i18n="s2_v">26,5 %</div><div class="stat-label" data-i18n="s2_l">Taux de churn (classe minoritaire)</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text" data-i18n="s3_v">70 %</div><div class="stat-label" data-i18n="s3_l">Recall sur la classe churn</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text" data-i18n="s4_v">0,61</div><div class="stat-label" data-i18n="s4_l">F1-score de la classe churn</div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Business context -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-briefcase-fill"></i><span data-i18n="ctx_title">Enjeu métier</span></h2>
+                <p class="section-sub" data-i18n="ctx_sub">Pourquoi prédire le churn ?</p>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-person-dash-fill"></i></div>
+                            <h5 data-i18n="pb_t">Le problème</h5>
+                            <p data-i18n="pb_d">Acquérir un nouveau client coûte bien plus cher que d'en garder un. Pourtant, sans outil prédictif, l'entreprise découvre souvent le départ d'un client une fois qu'il est trop tard pour agir.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-bullseye"></i></div>
+                            <h5 data-i18n="sol_t">La solution</h5>
+                            <p data-i18n="sol_d">Un modèle de classification entraîné sur l'historique des clients (contrat, services, facturation, ancienneté) qui identifie les profils à risque pour déclencher des offres de fidélisation ciblées.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EDA -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-search"></i><span data-i18n="eda_title">Analyse exploratoire</span></h2>
+                <p class="section-sub" data-i18n="eda_sub">Ce que les données ont révélé avant la modélisation.</p>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-table"></i></div>
+                            <h5 data-i18n="e1_t">7 043 × 21</h5>
+                            <p data-i18n="e1_d">Clients et variables : données démographiques, services souscrits, type de contrat et facturation.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-bug-fill"></i></div>
+                            <h5 data-i18n="e2_t">Anomalie détectée</h5>
+                            <p data-i18n="e2_d"><code>TotalCharges</code> stockée en texte : après conversion numérique, 11 valeurs manquantes (clients récents) remplacées par 0.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-pie-chart-fill"></i></div>
+                            <h5 data-i18n="e3_t">Classes déséquilibrées</h5>
+                            <p data-i18n="e3_d">26,5 % de churn contre 73,5 % de clients fidèles : un modèle naïf ignorerait la classe minoritaire, d'où le recours à SMOTE.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pipeline -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-diagram-3-fill"></i><span data-i18n="pipe_title">Pipeline</span></h2>
+                <p class="section-sub" data-i18n="pipe_sub">Orchestré par <code>main.py</code>, chaque étape est un module indépendant.</p>
+                <div class="flow mb-3">
+                    <div class="flow-step">
+                        <div class="step-num">01</div>
+                        <div class="step-icon"><i class="bi bi-filetype-csv"></i></div>
+                        <h6 data-i18n="p1_t">Données brutes</h6>
+                        <p data-i18n="p1_d">Chargement du CSV Telco</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">02</div>
+                        <div class="step-icon"><i class="bi bi-brush"></i></div>
+                        <h6 data-i18n="p2_t">Nettoyage</h6>
+                        <p data-i18n="p2_d">Types corrigés, valeurs manquantes, suppression de l'ID</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">03</div>
+                        <div class="step-icon"><i class="bi bi-123"></i></div>
+                        <h6 data-i18n="p3_t">Encodage</h6>
+                        <p data-i18n="p3_d">One-hot encoding, cible Churn en 0/1</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">04</div>
+                        <div class="step-icon"><i class="bi bi-database"></i></div>
+                        <h6 data-i18n="p4_t">SQLite</h6>
+                        <p data-i18n="p4_d">Données nettoyées stockées puis relues par requête SQL</p>
+                    </div>
+                </div>
+                <div class="flow">
+                    <div class="flow-step">
+                        <div class="step-num">05</div>
+                        <div class="step-icon"><i class="bi bi-signpost-split"></i></div>
+                        <h6 data-i18n="p5_t">Split stratifié</h6>
+                        <p data-i18n="p5_d">80 % entraînement / 20 % test</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">06</div>
+                        <div class="step-icon"><i class="bi bi-intersect"></i></div>
+                        <h6 data-i18n="p6_t">SMOTE</h6>
+                        <p data-i18n="p6_d">Sur le jeu d'entraînement uniquement : aucune fuite de données</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">07</div>
+                        <div class="step-icon"><i class="bi bi-tree-fill"></i></div>
+                        <h6 data-i18n="p7_t">Random Forest</h6>
+                        <p data-i18n="p7_d">200 arbres, profondeur max 10</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">08</div>
+                        <div class="step-icon"><i class="bi bi-clipboard-data"></i></div>
+                        <h6 data-i18n="p8_t">Évaluation</h6>
+                        <p data-i18n="p8_d">Rapport de classification, matrice de confusion, modèle sauvegardé (.joblib)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-bar-chart-fill"></i><span data-i18n="res_title">Résultats</span></h2>
+                <p class="section-sub" data-i18n="res_sub">Performance du Random Forest sur le jeu de test.</p>
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-4" data-i18n="res_card_t">Clients churners du jeu de test</h5>
+                            <div class="result-bar mb-2">
+                                <div class="hit" style="width: 69.8%;" data-i18n="res_hit">261 détectés</div>
+                                <div class="miss" style="width: 30.2%;" data-i18n="res_miss">113 manqués</div>
+                            </div>
+                            <div class="d-flex justify-content-between small text-secondary mb-4">
+                                <span>0</span><span>374</span>
+                            </div>
+                            <p class="card-desc mb-0" data-i18n="res_card_d">Le modèle identifie <span class="text-white fw-semibold">261 des 374 clients</span> qui ont réellement quitté l'opérateur, soit un recall de 70 % sur la classe churn, avec un F1-score de 0,61.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-3" data-i18n="biz_t">Pourquoi privilégier le recall ?</h5>
+                            <p class="card-desc" data-i18n="biz_d">Le pipeline est volontairement optimisé pour réduire les faux négatifs. Envoyer de temps en temps une offre de fidélisation à un client qui serait resté (faux positif) coûte peu. Manquer un client sur le point de partir (faux négatif), c'est perdre tout son revenu futur.</p>
+                            <ul class="check-list">
+                                <li><i class="bi bi-envelope-paper"></i><span data-i18n="biz_fp"><span class="text-white fw-semibold">Faux positif :</span> coût d'une promotion</span></li>
+                                <li><i class="bi bi-person-x" style="color: #f87171;"></i><span data-i18n="biz_fn"><span class="text-white fw-semibold">Faux négatif :</span> perte d'un client</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Engineering -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-code-square"></i><span data-i18n="eng_title">Qualité du code</span></h2>
+                <p class="section-sub" data-i18n="eng_sub">Conçu selon des principes proches de la production.</p>
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="code-block h-100">
+                            <div class="code-head"><span class="dots"><span></span><span></span><span></span></span>project structure</div>
+<pre>Customer_churn_prediction/
+├── data/
+│   ├── raw/              <span class="c"># telco churn CSV</span>
+│   └── processed/        <span class="c"># SQLite database (telco.db)</span>
+├── notebooks/
+│   └── 01_eda_telco.ipynb
+├── src/
+│   ├── config.py         <span class="c"># centralized paths</span>
+│   ├── data/loader.py    <span class="c"># CSV + SQLite I/O</span>
+│   ├── features/processor.py
+│   ├── models/trainer.py <span class="c"># split, SMOTE, RF / XGBoost</span>
+│   └── evaluation/evaluator.py
+├── main.py               <span class="c"># pipeline orchestrator</span>
+└── requirements.txt</pre>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="glass-card h-100">
+                            <ul class="check-list">
+                                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="g1"><span class="text-white fw-semibold">Configuration centralisée</span> des chemins dans <code>config.py</code>.</span></li>
+                                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="g2"><span class="text-white fw-semibold">Séparation des responsabilités</span> : données, features, modèles, évaluation.</span></li>
+                                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="g3"><span class="text-white fw-semibold">Transformations fonctionnelles</span> : chaque fonction travaille sur une copie du DataFrame.</span></li>
+                                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="g4"><span class="text-white fw-semibold">Logging</span> à chaque étape pour suivre l'exécution du pipeline.</span></li>
+                                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="g5"><span class="text-white fw-semibold">Classe <code>ModelTrainer</code></span> réutilisable, compatible Random Forest et XGBoost.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- In progress -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-rocket-takeoff-fill"></i><span data-i18n="wip_title">En cours de développement</span></h2>
+                <p class="section-sub" data-i18n="wip_sub">Les prochaines briques ajoutées au pipeline.</p>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-sliders"></i></div>
+                            <h5 data-i18n="w1_t">Optimisation des modèles</h5>
+                            <p data-i18n="w1_d">Comparaison XGBoost, Random Forest et Régression Logistique avec GridSearchCV.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-activity"></i></div>
+                            <h5 data-i18n="w2_t">Suivi des expériences</h5>
+                            <p data-i18n="w2_d">Intégration de MLflow pour tracer paramètres, métriques et modèles.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-check2-square"></i></div>
+                            <h5 data-i18n="w3_t">Tests automatisés</h5>
+                            <p data-i18n="w3_d">Tests Pytest pour valider chaque étape du pipeline.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-white mt-5 mb-3" data-i18n="stack_title">Stack technique</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="tech-chip">Python</span>
+                    <span class="tech-chip">Pandas</span>
+                    <span class="tech-chip">NumPy</span>
+                    <span class="tech-chip">SQLite</span>
+                    <span class="tech-chip">Scikit-learn</span>
+                    <span class="tech-chip">Imbalanced-learn</span>
+                    <span class="tech-chip">XGBoost</span>
+                    <span class="tech-chip">Matplotlib</span>
+                    <span class="tech-chip">Seaborn</span>
+                    <span class="tech-chip">Joblib</span>
+                    <span class="tech-chip">MLflow</span>
+                    <span class="tech-chip">Pytest</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="py-5">
+            <div class="container py-3">
+                <div class="glass-card cta-card">
+                    <h2 class="fs-2 fw-bold text-white mb-3" data-i18n="cta_t">Envie de voir le code ?</h2>
+                    <p class="text-secondary mb-4 mx-auto" style="max-width: 560px;" data-i18n="cta_d">Le code source, le notebook d'analyse exploratoire et les instructions d'exécution sont disponibles sur GitHub.</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="https://github.com/lydangphuckhang/Customer_churn_prediction" target="_blank" class="btn btn-cyan" data-i18n="cta_btn"><i class="bi bi-github me-2"></i>Customer_churn_prediction sur GitHub</a>
+                        <a href="projects.html" class="btn btn-glass" data-i18n="cta_back"><i class="bi bi-grid me-2"></i>Tous les projets</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto">
+        <div class="container text-center">
+            <p class="small text-secondary mb-0" data-i18n="footer">
+                &copy; 2026 Dang Phuc Khang Ly. Ingénieur IA / IA Industrielle.
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            var EN = {
+                back: "<i class=\"bi bi-arrow-left\"></i> Back to projects",
+                badge: "<i class=\"bi bi-graph-up-arrow\"></i> ML Project · Classification",
+                biz_d: "The pipeline is deliberately tuned to reduce false negatives. Occasionally sending a retention offer to a customer who would have stayed (false positive) costs little. Missing a customer about to leave (false negative) means losing all their future revenue.",
+                biz_fn: "<span class=\"text-white fw-semibold\">False negative:</span> a lost customer",
+                biz_fp: "<span class=\"text-white fw-semibold\">False positive:</span> cost of one promotion",
+                biz_t: "Why prioritize recall?",
+                btn_gh: "<i class=\"bi bi-github me-2\"></i>View code on GitHub",
+                cta_back: "<i class=\"bi bi-grid me-2\"></i>All projects",
+                cta_btn: "<i class=\"bi bi-github me-2\"></i>Customer_churn_prediction on GitHub",
+                cta_d: "The source code, the exploratory analysis notebook and run instructions are available on GitHub.",
+                cta_t: "Want to see the code?",
+                ctx_sub: "Why predict churn?",
+                ctx_title: "Business problem",
+                e1_d: "Customers and variables: demographics, subscribed services, contract type and billing.",
+                e1_t: "7,043 × 21",
+                e2_d: "<code>TotalCharges</code> stored as text: after numeric conversion, 11 missing values (new customers) replaced with 0.",
+                e2_t: "Anomaly found",
+                e3_d: "26.5% churn vs 73.5% loyal customers: a naive model would ignore the minority class, hence the use of SMOTE.",
+                e3_t: "Imbalanced classes",
+                eda_sub: "What the data revealed before modeling.",
+                eda_title: "Exploratory analysis",
+                eng_sub: "Built with production-like principles.",
+                eng_title: "Code quality",
+                footer: "&copy; 2026 Dang Phuc Khang Ly. AI Engineer / Industrial AI.",
+                g1: "<span class=\"text-white fw-semibold\">Centralized configuration</span> of paths in <code>config.py</code>.",
+                g2: "<span class=\"text-white fw-semibold\">Separation of concerns</span>: data, features, models, evaluation.",
+                g3: "<span class=\"text-white fw-semibold\">Functional transformations</span>: each function works on a copy of the DataFrame.",
+                g4: "<span class=\"text-white fw-semibold\">Logging</span> at every step to trace pipeline execution.",
+                g5: "<span class=\"text-white fw-semibold\">Reusable <code>ModelTrainer</code> class</span>, supporting Random Forest and XGBoost.",
+                lead: "An end-to-end Machine Learning pipeline that predicts which customers of a telecom operator are likely to cancel their subscription, so that <span class=\"text-white fw-semibold\">retention actions can be targeted before it is too late</span>.",
+                nav_about: "About &amp; Education",
+                nav_home: "Home",
+                nav_projects: "Projects",
+                p1_d: "Load the Telco CSV",
+                p1_t: "Raw data",
+                p2_d: "Type fixes, missing values, ID dropped",
+                p2_t: "Cleaning",
+                p3_d: "One-hot encoding, Churn target as 0/1",
+                p3_t: "Encoding",
+                p4_d: "Clean data stored, then read back via SQL query",
+                p4_t: "SQLite",
+                p5_d: "80% train / 20% test",
+                p5_t: "Stratified split",
+                p6_d: "On the training set only: no data leakage",
+                p6_t: "SMOTE",
+                p7_d: "200 trees, max depth 10",
+                p7_t: "Random Forest",
+                p8_d: "Classification report, confusion matrix, model saved (.joblib)",
+                p8_t: "Evaluation",
+                pb_d: "Acquiring a new customer costs far more than keeping one. Yet without a predictive tool, the company often learns a customer is leaving when it is too late to act.",
+                pb_t: "The problem",
+                pipe_sub: "Orchestrated by <code>main.py</code>, each step is an independent module.",
+                pipe_title: "Pipeline",
+                res_card_d: "The model identifies <span class=\"text-white fw-semibold\">261 of the 374 customers</span> who actually left, a 70% recall on the churn class, with an F1-score of 0.61.",
+                res_card_t: "Churning customers in the test set",
+                res_hit: "261 detected",
+                res_miss: "113 missed",
+                res_sub: "Random Forest performance on the test set.",
+                res_title: "Results",
+                s1_l: "Customers analyzed",
+                s1_v: "7,043",
+                s2_l: "Churn rate (minority class)",
+                s2_v: "26.5%",
+                s3_l: "Recall on the churn class",
+                s3_v: "70%",
+                s4_l: "F1-score for the churn class",
+                s4_v: "0.61",
+                sol_d: "A classification model trained on customer history (contract, services, billing, tenure) that flags at-risk profiles to trigger targeted retention offers.",
+                sol_t: "The solution",
+                stack_title: "Tech stack",
+                w1_d: "Comparing XGBoost, Random Forest and Logistic Regression with GridSearchCV.",
+                w1_t: "Model tuning",
+                w2_d: "MLflow integration to track parameters, metrics and models.",
+                w2_t: "Experiment tracking",
+                w3_d: "Pytest tests to validate each pipeline step.",
+                w3_t: "Automated tests",
+                wip_sub: "The next building blocks being added to the pipeline.",
+                wip_title: "In progress"
+            };
+            var META_EN = {
+                title: "Customer Churn Prediction | Dang Phuc Khang Ly",
+                description: "Customer churn prediction ML pipeline with SMOTE and Random Forest - Dang Phuc Khang Ly"
+            };
+
+            var nodes = document.querySelectorAll('[data-i18n]');
+            var FR = {};
+            nodes.forEach(function (el) { FR[el.getAttribute('data-i18n')] = el.innerHTML; });
+            var metaDesc = document.querySelector('meta[name="description"]');
+            var META_FR = { title: document.title, description: metaDesc ? metaDesc.getAttribute('content') : '' };
+
+            var current = 'fr';
+            function setLang(lang) {
+                var dict = lang === 'en' ? EN : FR;
+                var meta = lang === 'en' ? META_EN : META_FR;
+                nodes.forEach(function (el) {
+                    var key = el.getAttribute('data-i18n');
+                    if (dict[key] !== undefined) el.innerHTML = dict[key];
+                });
+                document.documentElement.lang = lang;
+                document.title = meta.title;
+                if (metaDesc) metaDesc.setAttribute('content', meta.description);
+                document.getElementById('langLabel').textContent = lang === 'en' ? 'EN' : 'FR';
+                current = lang;
+                try { localStorage.setItem('lang', lang); } catch (e) {}
+            }
+
+            document.getElementById('langToggle').addEventListener('click', function () {
+                setLang(current === 'fr' ? 'en' : 'fr');
+            });
+
+            var saved = null;
+            try { saved = localStorage.getItem('lang'); } catch (e) {}
+            if (saved === 'en') setLang('en');
+        })();
+    </script>
+    <!-- GA4 Event Tracking -->
+    <script>
+        document.addEventListener('click', function (e) {
+            var el = e.target.closest('a, #langToggle');
+            if (!el) return;
+            var page = location.pathname;
+            if (el.id === 'langToggle') {
+                var label = document.getElementById('langLabel');
+                gtag('event', 'switch_language', { page_path: page, toggle_label: label ? label.textContent : '' });
+                return;
+            }
+            var href = el.getAttribute('href') || '';
+            if (el.hasAttribute('download')) {
+                gtag('event', 'download_cv', { page_path: page });
+            } else if (href.indexOf('github.com') !== -1) {
+                gtag('event', 'click_github', { link_url: href, page_path: page });
+            } else if (href.indexOf('linkedin.com') !== -1) {
+                gtag('event', 'click_linkedin', { link_url: href, page_path: page });
+            } else if (href.indexOf('mailto:') === 0) {
+                gtag('event', 'click_email', { page_path: page });
+            } else if (href.indexOf('project-') === 0) {
+                gtag('event', 'view_project', { project_page: href, page_path: page });
+            } else if (href === 'resume.html' && el.classList.contains('btn')) {
+                gtag('event', 'click_cv_button', { page_path: page });
+            } else if (href === 'projects.html' && el.classList.contains('btn')) {
+                gtag('event', 'click_projects_button', { page_path: page });
+            }
+        });
+    </script>
+</body>
+</html>

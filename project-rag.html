@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Google Analytics 4 (gtag.js) -->
+    <script>
+        var GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // <-- Replace with your Measurement ID
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        if (/^G-[A-Z0-9]+$/.test(GA_MEASUREMENT_ID) && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+            var gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+            document.head.appendChild(gaScript);
+            gtag('js', new Date());
+            gtag('config', GA_MEASUREMENT_ID);
+        }
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Local RAG Chatbot : chatbot RAG 100 % local avec LangChain, ChromaDB et Qwen2.5 - Dang Phuc Khang Ly" />
+    <meta name="author" content="Dang Phuc Khang Ly" />
+    <title>Local RAG Chatbot | Dang Phuc Khang Ly</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons & CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent-cyan: #38bdf8;
+            --accent-indigo: #818cf8;
+            --accent-blue: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #fff !important;
+        }
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-cyan) !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 90px 0 70px;
+            position: relative;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            color: var(--accent-cyan);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Profile Avatar */
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+        }
+        .avatar-glow {
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            border-radius: 28px;
+            filter: blur(15px);
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+        .avatar-container:hover .avatar-glow {
+            opacity: 0.95;
+        }
+        .avatar-img {
+            position: relative;
+            width: 320px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            z-index: 1;
+        }
+
+        /* Buttons */
+        .btn-cyan {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-cyan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.6);
+            color: #fff;
+        }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.8);
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .icon-box.cyan { background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); }
+        .icon-box.indigo { background: rgba(129, 140, 248, 0.12); color: var(--accent-indigo); }
+
+        /* Tech Tags */
+        .tech-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Social Links */
+        .social-link {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .social-link:hover {
+            background: var(--accent-cyan);
+            color: #0f172a;
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: #090d16;
+        }
+
+        .card-desc {
+            color: #cbd5e1;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-tag {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent-cyan);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .lang-toggle:hover {
+            background: var(--accent-cyan);
+            color: #0f172a;
+        }
+
+        /* Project Pages */
+        .page-header {
+            padding: 70px 0 40px;
+            position: relative;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .page-header .container { position: relative; z-index: 1; }
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent-cyan); }
+        .lead-text {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            line-height: 1.75;
+            max-width: 760px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .section-title i { color: var(--accent-cyan); }
+        .section-sub {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .detail-section { padding: 40px 0; }
+
+        /* Project cards (overview) */
+        .project-card {
+            padding: 34px;
+            display: flex;
+            flex-direction: column;
+        }
+        .project-card .project-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .project-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 6px 0 16px;
+        }
+        .project-list {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            padding-left: 1.2rem;
+            margin-bottom: 22px;
+        }
+        .project-list li { margin-bottom: 8px; }
+        .project-list li::marker { color: var(--accent-cyan); }
+        .btn-sm-cyan, .btn-sm-glass {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Stats */
+        .stat-card {
+            text-align: center;
+            padding: 26px 18px;
+        }
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Pipeline flow */
+        .flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .flow-step {
+            flex: 1 1 150px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 18px 16px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .flow-step:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-3px);
+        }
+        .flow-step .step-num {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+        .flow-step .step-icon {
+            font-size: 1.4rem;
+            color: var(--accent-indigo);
+            margin: 6px 0 8px;
+        }
+        .flow-step h6 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+        .flow-step p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+        }
+        @media (max-width: 767px) {
+            .flow { flex-direction: column; }
+            .flow-arrow { justify-content: center; transform: rotate(90deg); }
+        }
+        .flow-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+        .flow-label .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 12px var(--accent-cyan);
+        }
+        .flow-label .dot.indigo {
+            background: var(--accent-indigo);
+            box-shadow: 0 0 12px var(--accent-indigo);
+        }
+
+        /* Feature cards */
+        .feature-card h5 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+        .feature-card p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #0b1120;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .code-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .code-head .dots span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 4px;
+            background: rgba(148, 163, 184, 0.3);
+        }
+        .code-block pre {
+            margin: 0;
+            padding: 18px 20px;
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        .code-block .c { color: #64748b; }
+        .code-block .k { color: #c084fc; }
+        .code-block .s { color: #7dd3fc; }
+        .code-block .f { color: #818cf8; }
+
+        /* Config table */
+        .config-table {
+            width: 100%;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        .config-table td {
+            padding: 11px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .config-table tr:last-child td { border-bottom: none; }
+        .config-table td:last-child {
+            text-align: right;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Chat demo */
+        .chat-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .chat-bubble.user {
+            margin-left: auto;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble.bot {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-bubble.rewrite {
+            margin: 0 auto 12px;
+            background: rgba(129, 140, 248, 0.1);
+            border: 1px dashed rgba(129, 140, 248, 0.5);
+            color: #c7d2fe;
+            font-size: 0.85rem;
+        }
+        .chat-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Result bar */
+        .result-bar {
+            display: flex;
+            height: 38px;
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .result-bar .hit {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+        }
+        .result-bar .miss {
+            background: rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 14px;
+        }
+
+        .check-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+            color: #cbd5e1;
+            font-size: 0.92rem;
+        }
+        .check-list li {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .check-list li i { color: var(--accent-cyan); margin-top: 2px; }
+        .check-list.indigo li i { color: var(--accent-indigo); }
+
+        main code {
+            color: #7dd3fc;
+        }
+        .cta-card {
+            text-align: center;
+            padding: 44px 30px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(129, 140, 248, 0.12));
+        }
+    </style>
+</head>
+<body class="d-flex flex-column h-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <span class="fs-4 gradient-text fw-bold">KHANGLY.PORTFOLIO</span>
+            </a>
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-3">
+                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav_home">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="resume.html" data-i18n="nav_about">À Propos & Éducation</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="projects.html" data-i18n="nav_projects">Projets</a></li>
+                </ul>
+                <button type="button" id="langToggle" class="lang-toggle ms-lg-4 mt-2 mt-lg-0" aria-label="Switch language">
+                    <i class="bi bi-translate"></i><span id="langLabel">FR</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+
+        <!-- Project Header -->
+        <section class="page-header">
+            <div class="container">
+                <a href="projects.html" class="back-link" data-i18n="back"><i class="bi bi-arrow-left"></i> Retour aux projets</a>
+                <div class="d-block"><div class="tech-badge" data-i18n="badge"><i class="bi bi-chat-left-dots-fill"></i> Projet IA · LLM &amp; RAG</div></div>
+                <h1 class="display-4 fw-bold mb-3"><span class="gradient-text">Local RAG Chatbot</span></h1>
+                <p class="lead-text mb-4" data-i18n="lead">Un assistant conversationnel qui répond aux questions sur vos propres documents PDF et TXT, <span class="text-white fw-semibold">entièrement en local</span> : aucune donnée ne quitte la machine. Les réponses s'appuient sur les passages retrouvés dans les documents, avec les sources affichées.</p>
+                <div class="tech-tags mb-4">
+                    <span class="tech-tag">LangChain (LCEL)</span>
+                    <span class="tech-tag">Chainlit</span>
+                    <span class="tech-tag">ChromaDB</span>
+                    <span class="tech-tag">Qwen2.5-1.5B-Instruct</span>
+                    <span class="tech-tag">Hugging Face</span>
+                    <span class="tech-tag">BitsAndBytes 4-bit</span>
+                    <span class="tech-tag">MMR</span>
+                </div>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="https://github.com/lydangphuckhang/Local_RAG_chatbot" target="_blank" class="btn btn-cyan" data-i18n="btn_gh"><i class="bi bi-github me-2"></i>Voir le code sur GitHub</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="pb-4">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text">100%</div><div class="stat-label" data-i18n="s1_l">Exécution locale, données privées</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text">1.5B</div><div class="stat-label" data-i18n="s2_l">Paramètres du LLM (Qwen2.5)</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text">4-bit</div><div class="stat-label" data-i18n="s3_l">Quantification du modèle</div></div></div>
+                    <div class="col-6 col-lg-3"><div class="glass-card stat-card h-100"><div class="stat-value gradient-text">384</div><div class="stat-label" data-i18n="s4_l">Dimensions des embeddings</div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Context -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-lightbulb-fill"></i><span data-i18n="ctx_title">Contexte</span></h2>
+                <p class="section-sub" data-i18n="ctx_sub">Pourquoi un RAG local ?</p>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                            <h5 data-i18n="pb_t">Le problème</h5>
+                            <p data-i18n="pb_d">Les LLM grand public ne connaissent pas vos documents internes, peuvent inventer des réponses (hallucinations) et nécessitent souvent d'envoyer des données sensibles vers un service cloud.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-check-circle-fill"></i></div>
+                            <h5 data-i18n="sol_t">La solution</h5>
+                            <p data-i18n="sol_d">Un pipeline RAG (Retrieval-Augmented Generation) qui indexe les documents dans une base vectorielle locale, retrouve les passages pertinents puis génère une réponse avec un petit LLM quantifié tournant sur un matériel modeste.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-diagram-3-fill"></i><span data-i18n="arch_title">Architecture</span></h2>
+                <p class="section-sub" data-i18n="arch_sub">Deux étapes : indexation des documents, puis question-réponse conversationnelle.</p>
+
+                <div class="flow-label"><span class="dot"></span><span data-i18n="flow1">1 · Ingestion des documents</span></div>
+                <div class="flow mb-5">
+                    <div class="flow-step">
+                        <div class="step-num">01</div>
+                        <div class="step-icon"><i class="bi bi-file-earmark-text"></i></div>
+                        <h6 data-i18n="i1_t">Chargement</h6>
+                        <p data-i18n="i1_d">PDF via PyPDFLoader, TXT via TextLoader</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">02</div>
+                        <div class="step-icon"><i class="bi bi-scissors"></i></div>
+                        <h6 data-i18n="i2_t">Découpage</h6>
+                        <p data-i18n="i2_d">Chunks de 300 tokens, chevauchement de 50, tokenizer Qwen</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">03</div>
+                        <div class="step-icon"><i class="bi bi-cpu"></i></div>
+                        <h6 data-i18n="i3_t">Embeddings</h6>
+                        <p data-i18n="i3_d">all-MiniLM-L6-v2 sur CPU, vecteurs normalisés</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">04</div>
+                        <div class="step-icon"><i class="bi bi-database"></i></div>
+                        <h6 data-i18n="i4_t">Stockage</h6>
+                        <p data-i18n="i4_d">Base vectorielle ChromaDB persistante</p>
+                    </div>
+                </div>
+
+                <div class="flow-label"><span class="dot indigo"></span><span data-i18n="flow2">2 · Question-réponse (chaîne LCEL)</span></div>
+                <div class="flow">
+                    <div class="flow-step">
+                        <div class="step-num">01</div>
+                        <div class="step-icon"><i class="bi bi-chat-left-text"></i></div>
+                        <h6 data-i18n="q1_t">Question</h6>
+                        <p data-i18n="q1_d">Message de l'utilisateur + historique</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">02</div>
+                        <div class="step-icon"><i class="bi bi-arrow-repeat"></i></div>
+                        <h6 data-i18n="q2_t">Reformulation</h6>
+                        <p data-i18n="q2_d">Le LLM réécrit la question en version autonome</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">03</div>
+                        <div class="step-icon"><i class="bi bi-search"></i></div>
+                        <h6 data-i18n="q3_t">Recherche MMR</h6>
+                        <p data-i18n="q3_d">k=2 passages parmi 20 candidats, pertinents et variés</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">04</div>
+                        <div class="step-icon"><i class="bi bi-stars"></i></div>
+                        <h6 data-i18n="q4_t">Génération</h6>
+                        <p data-i18n="q4_d">Qwen2.5-1.5B 4-bit avec contexte + historique</p>
+                    </div>
+                    <div class="flow-arrow"><i class="bi bi-arrow-right"></i></div>
+                    <div class="flow-step">
+                        <div class="step-num">05</div>
+                        <div class="step-icon"><i class="bi bi-check2-circle"></i></div>
+                        <h6 data-i18n="q5_t">Réponse</h6>
+                        <p data-i18n="q5_d">Affichée dans Chainlit avec les sources</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-chat-square-text-fill"></i><span data-i18n="demo_title">Mémoire conversationnelle</span></h2>
+                <p class="section-sub" data-i18n="demo_sub">Comment le chatbot comprend les questions de suivi.</p>
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-7">
+                        <div class="glass-card">
+                            <div class="chat-bubble user"><span class="chat-tag" data-i18n="demo_tag_user">Utilisateur</span><span data-i18n="demo_q1">Qu'est-ce que l'INSA Centre Val de Loire ?</span></div>
+                            <div class="chat-bubble bot"><span class="chat-tag" data-i18n="demo_tag_bot">Assistant</span><span data-i18n="demo_a1">Réponse générée à partir des passages retrouvés dans le document. <span class="d-block mt-1 small text-info">Références : Source 1, Source 2</span></span></div>
+                            <div class="chat-bubble user"><span class="chat-tag" data-i18n="demo_tag_user2">Utilisateur</span><span data-i18n="demo_q2">Où se trouve-t-il ?</span></div>
+                            <div class="chat-bubble rewrite text-center"><span class="chat-tag" data-i18n="demo_tag_rw"><i class="bi bi-arrow-repeat"></i> Reformulation interne</span><span data-i18n="demo_rw">« Où se trouve l'INSA Centre Val de Loire ? »</span></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <h4 class="fs-5 fw-bold text-white mb-3" data-i18n="demo_expl_t">Pourquoi c'est important</h4>
+                        <p class="card-desc" data-i18n="demo_expl">Une question comme « Où se trouve-t-il ? » ne contient aucun mot-clé utile pour la recherche vectorielle. Le chatbot utilise d'abord le LLM pour résoudre le pronom grâce à l'historique, puis lance la recherche avec la question reformulée. Résultat : des passages pertinents, même en pleine conversation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-stars"></i><span data-i18n="feat_title">Points forts</span></h2>
+                <p class="section-sub" data-i18n="feat_sub">Les choix techniques qui font la différence.</p>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-shield-lock-fill"></i></div>
+                            <h5 data-i18n="f1_t">Confidentialité totale</h5>
+                            <p data-i18n="f1_d">Modèle chargé depuis le cache local (local_files_only), aucun appel API externe.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-shuffle"></i></div>
+                            <h5 data-i18n="f2_t">Recherche MMR</h5>
+                            <p data-i18n="f2_d">Maximal Marginal Relevance (λ = 0,5) : équilibre entre pertinence et diversité pour éviter les passages redondants.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-gpu-card"></i></div>
+                            <h5 data-i18n="f3_t">Optimisé pour petit GPU</h5>
+                            <p data-i18n="f3_d">Quantification 4 bits (BitsAndBytes), répartition automatique GPU/CPU : 1,8 Go de VRAM maximum, le reste déchargé sur CPU.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-cpu-fill"></i></div>
+                            <h5 data-i18n="f4_t">Embeddings sur CPU</h5>
+                            <p data-i18n="f4_d">Le modèle d'embedding tourne sur CPU pour réserver la mémoire GPU au LLM.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box cyan"><i class="bi bi-journal-text"></i></div>
+                            <h5 data-i18n="f5_t">Sources affichées</h5>
+                            <p data-i18n="f5_d">Chaque réponse liste les passages utilisés, consultables directement dans l'interface Chainlit.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="glass-card feature-card h-100">
+                            <div class="icon-box indigo"><i class="bi bi-patch-check-fill"></i></div>
+                            <h5 data-i18n="f6_t">Anti-hallucination</h5>
+                            <p data-i18n="f6_d">Prompt strict : si la réponse n'est pas dans le contexte, le modèle doit dire qu'il ne sait pas. Température basse (0,1).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Implementation -->
+        <section class="detail-section">
+            <div class="container">
+                <h2 class="section-title"><i class="bi bi-code-square"></i><span data-i18n="impl_title">Implémentation</span></h2>
+                <p class="section-sub" data-i18n="impl_sub">Paramètres clés et cœur de la chaîne LCEL.</p>
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-3" data-i18n="cfg_title">Configuration</h5>
+                            <table class="config-table">
+                                <tr><td data-i18n="cfg1">Taille des chunks</td><td>300 tokens</td></tr>
+                                <tr><td data-i18n="cfg2">Chevauchement</td><td>50 tokens</td></tr>
+                                <tr><td data-i18n="cfg3">Passages retrouvés (k)</td><td>2</td></tr>
+                                <tr><td data-i18n="cfg4">Candidats (fetch_k)</td><td>20</td></tr>
+                                <tr><td data-i18n="cfg5">MMR lambda_mult</td><td>0.5</td></tr>
+                                <tr><td data-i18n="cfg6">Tokens max générés</td><td>512</td></tr>
+                                <tr><td data-i18n="cfg7">Température</td><td>0.1</td></tr>
+                                <tr><td data-i18n="cfg8">Mémoire GPU max</td><td data-i18n="cfg_v8">1,8 Go</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="code-block h-100">
+                            <div class="code-head"><span class="dots"><span></span><span></span><span></span></span>src/rag_pipeline.py</div>
+<pre><span class="c"># Conversational RAG chain built with LCEL</span>
+retriever = get_retriever(vector_store, k=<span class="s">2</span>)   <span class="c"># MMR</span>
+
+rag_chain = (
+    RunnablePassthrough.<span class="f">assign</span>(
+        standalone_question=question_generator   <span class="c"># 1. rewrite question</span>
+    )
+    .<span class="f">assign</span>(
+        source_documents=<span class="k">lambda</span> x: retriever.<span class="f">invoke</span>(
+            x[<span class="s">"standalone_question"</span>]           <span class="c"># 2. MMR retrieval</span>
+        )
+    )
+    .<span class="f">assign</span>(
+        answer=answer_chain                     <span class="c"># 3. generate answer</span>
+    )
+)</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-white mt-5 mb-3" data-i18n="stack_title">Stack technique</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="tech-chip">Python</span>
+                    <span class="tech-chip">LangChain</span>
+                    <span class="tech-chip">Chainlit</span>
+                    <span class="tech-chip">ChromaDB</span>
+                    <span class="tech-chip">Qwen2.5-1.5B-Instruct</span>
+                    <span class="tech-chip">all-MiniLM-L6-v2</span>
+                    <span class="tech-chip">Sentence Transformers</span>
+                    <span class="tech-chip">Hugging Face Transformers</span>
+                    <span class="tech-chip">BitsAndBytes</span>
+                    <span class="tech-chip">PyTorch</span>
+                    <span class="tech-chip">PyPDF</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Limitations & Roadmap -->
+        <section class="detail-section" style="background: rgba(15, 23, 42, 0.5);">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-3"><i class="bi bi-exclamation-circle me-2" style="color: var(--accent-indigo);"></i><span data-i18n="lim_title">Limites actuelles</span></h5>
+                            <ul class="check-list indigo">
+                                <li><i class="bi bi-dash-circle"></i><span data-i18n="lim1">La qualité des réponses dépend de la qualité des documents et du découpage.</span></li>
+                                <li><i class="bi bi-dash-circle"></i><span data-i18n="lim2">Modèle de 1,5B paramètres : rapide et léger, mais moins puissant qu'un grand LLM.</span></li>
+                                <li><i class="bi bi-dash-circle"></i><span data-i18n="lim3">L'ingestion traite actuellement un seul document à la fois.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="glass-card h-100">
+                            <h5 class="fw-bold text-white mb-3"><i class="bi bi-rocket-takeoff me-2" style="color: var(--accent-cyan);"></i><span data-i18n="next_title">Prochaines étapes</span></h5>
+                            <ul class="check-list">
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="next1">Ingestion par lots et incrémentale d'un dossier complet.</span></li>
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="next2">Métadonnées enrichies et citations précises (page, fichier).</span></li>
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="next3">Évaluation de la qualité de la recherche et comparaison d'autres embeddings.</span></li>
+                                <li><i class="bi bi-arrow-right-circle"></i><span data-i18n="next4">Meilleure gestion des hallucinations.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="py-5">
+            <div class="container py-3">
+                <div class="glass-card cta-card">
+                    <h2 class="fs-2 fw-bold text-white mb-3" data-i18n="cta_t">Envie de voir le code ?</h2>
+                    <p class="text-secondary mb-4 mx-auto" style="max-width: 560px;" data-i18n="cta_d">Le code source complet, l'architecture modulaire et les instructions d'installation sont disponibles sur GitHub.</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="https://github.com/lydangphuckhang/Local_RAG_chatbot" target="_blank" class="btn btn-cyan" data-i18n="cta_btn"><i class="bi bi-github me-2"></i>Local_RAG_chatbot sur GitHub</a>
+                        <a href="projects.html" class="btn btn-glass" data-i18n="cta_back"><i class="bi bi-grid me-2"></i>Tous les projets</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto">
+        <div class="container text-center">
+            <p class="small text-secondary mb-0" data-i18n="footer">
+                &copy; 2026 Dang Phuc Khang Ly. Ingénieur IA / IA Industrielle.
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            var EN = {
+                arch_sub: "Two stages: document indexing, then conversational question answering.",
+                arch_title: "Architecture",
+                back: "<i class=\"bi bi-arrow-left\"></i> Back to projects",
+                badge: "<i class=\"bi bi-chat-left-dots-fill\"></i> AI Project · LLM &amp; RAG",
+                btn_gh: "<i class=\"bi bi-github me-2\"></i>View code on GitHub",
+                cfg1: "Chunk size",
+                cfg2: "Chunk overlap",
+                cfg3: "Retrieved chunks (k)",
+                cfg4: "Candidates (fetch_k)",
+                cfg5: "MMR lambda_mult",
+                cfg6: "Max new tokens",
+                cfg7: "Temperature",
+                cfg8: "Max GPU memory",
+                cfg_title: "Configuration",
+                cfg_v8: "1.8 GB",
+                cta_back: "<i class=\"bi bi-grid me-2\"></i>All projects",
+                cta_btn: "<i class=\"bi bi-github me-2\"></i>Local_RAG_chatbot on GitHub",
+                cta_d: "The full source code, modular architecture and setup instructions are available on GitHub.",
+                cta_t: "Want to see the code?",
+                ctx_sub: "Why a local RAG?",
+                ctx_title: "Context",
+                demo_a1: "Answer generated from passages retrieved in the document. <span class=\"d-block mt-1 small text-info\">References: Source 1, Source 2</span>",
+                demo_expl: "A question like \"Where is it located?\" contains no useful keyword for vector search. The chatbot first uses the LLM to resolve the pronoun from the chat history, then runs the search with the rewritten question. Result: relevant passages, even mid-conversation.",
+                demo_expl_t: "Why it matters",
+                demo_q1: "What is INSA Centre Val de Loire?",
+                demo_q2: "Where is it located?",
+                demo_rw: "\"Where is INSA Centre Val de Loire located?\"",
+                demo_sub: "How the chatbot understands follow-up questions.",
+                demo_tag_bot: "Assistant",
+                demo_tag_rw: "<i class=\"bi bi-arrow-repeat\"></i> Internal rewrite",
+                demo_tag_user: "User",
+                demo_tag_user2: "User",
+                demo_title: "Conversational memory",
+                f1_d: "Model loaded from the local cache (local_files_only), no external API calls.",
+                f1_t: "Full privacy",
+                f2_d: "Maximal Marginal Relevance (λ = 0.5): balances relevance and diversity to avoid redundant passages.",
+                f2_t: "MMR retrieval",
+                f3_d: "4-bit quantization (BitsAndBytes), automatic GPU/CPU placement: 1.8 GB of VRAM max, the rest offloaded to CPU.",
+                f3_t: "Built for small GPUs",
+                f4_d: "The embedding model runs on CPU to keep GPU memory for the LLM.",
+                f4_t: "Embeddings on CPU",
+                f5_d: "Each answer lists the passages used, viewable directly in the Chainlit interface.",
+                f5_t: "Sources displayed",
+                f6_d: "Strict prompt: if the answer is not in the context, the model must say it does not know. Low temperature (0.1).",
+                f6_t: "Anti-hallucination",
+                feat_sub: "The technical choices that make the difference.",
+                feat_title: "Key features",
+                flow1: "1 · Document ingestion",
+                flow2: "2 · Question answering (LCEL chain)",
+                footer: "&copy; 2026 Dang Phuc Khang Ly. AI Engineer / Industrial AI.",
+                i1_d: "PDF via PyPDFLoader, TXT via TextLoader",
+                i1_t: "Loading",
+                i2_d: "300-token chunks, 50 overlap, Qwen tokenizer",
+                i2_t: "Chunking",
+                i3_d: "all-MiniLM-L6-v2 on CPU, normalized vectors",
+                i3_t: "Embeddings",
+                i4_d: "Persistent ChromaDB vector store",
+                i4_t: "Storage",
+                impl_sub: "Key settings and the core of the LCEL chain.",
+                impl_title: "Implementation",
+                lead: "A conversational assistant that answers questions about your own PDF and TXT documents, <span class=\"text-white fw-semibold\">fully on your machine</span>: no data ever leaves it. Answers are grounded in passages retrieved from the documents, with sources displayed.",
+                lim1: "Answer quality depends on document quality and chunking.",
+                lim2: "1.5B-parameter model: fast and lightweight, but less capable than a large LLM.",
+                lim3: "Ingestion currently processes one document at a time.",
+                lim_title: "Current limitations",
+                nav_about: "About &amp; Education",
+                nav_home: "Home",
+                nav_projects: "Projects",
+                next1: "Batch and incremental ingestion of a whole folder.",
+                next2: "Richer metadata and precise citations (page, file).",
+                next3: "Retrieval quality evaluation and comparison of other embeddings.",
+                next4: "Better hallucination handling.",
+                next_title: "Next steps",
+                pb_d: "Mainstream LLMs do not know your internal documents, can make up answers (hallucinations) and often require sending sensitive data to a cloud service.",
+                pb_t: "The problem",
+                q1_d: "User message + chat history",
+                q1_t: "Question",
+                q2_d: "The LLM rewrites it as a standalone question",
+                q2_t: "Rewriting",
+                q3_d: "k=2 chunks out of 20 candidates, relevant and diverse",
+                q3_t: "MMR search",
+                q4_d: "Qwen2.5-1.5B 4-bit with context + history",
+                q4_t: "Generation",
+                q5_d: "Shown in Chainlit with sources",
+                q5_t: "Answer",
+                s1_l: "Local execution, private data",
+                s2_l: "LLM parameters (Qwen2.5)",
+                s3_l: "Model quantization",
+                s4_l: "Embedding dimensions",
+                sol_d: "A RAG (Retrieval-Augmented Generation) pipeline that indexes documents in a local vector database, retrieves relevant passages, then generates an answer with a small quantized LLM running on modest hardware.",
+                sol_t: "The solution",
+                stack_title: "Tech stack"
+            };
+            var META_EN = {
+                title: "Local RAG Chatbot | Dang Phuc Khang Ly",
+                description: "Local RAG Chatbot: 100% local RAG chatbot with LangChain, ChromaDB and Qwen2.5 - Dang Phuc Khang Ly"
+            };
+
+            var nodes = document.querySelectorAll('[data-i18n]');
+            var FR = {};
+            nodes.forEach(function (el) { FR[el.getAttribute('data-i18n')] = el.innerHTML; });
+            var metaDesc = document.querySelector('meta[name="description"]');
+            var META_FR = { title: document.title, description: metaDesc ? metaDesc.getAttribute('content') : '' };
+
+            var current = 'fr';
+            function setLang(lang) {
+                var dict = lang === 'en' ? EN : FR;
+                var meta = lang === 'en' ? META_EN : META_FR;
+                nodes.forEach(function (el) {
+                    var key = el.getAttribute('data-i18n');
+                    if (dict[key] !== undefined) el.innerHTML = dict[key];
+                });
+                document.documentElement.lang = lang;
+                document.title = meta.title;
+                if (metaDesc) metaDesc.setAttribute('content', meta.description);
+                document.getElementById('langLabel').textContent = lang === 'en' ? 'EN' : 'FR';
+                current = lang;
+                try { localStorage.setItem('lang', lang); } catch (e) {}
+            }
+
+            document.getElementById('langToggle').addEventListener('click', function () {
+                setLang(current === 'fr' ? 'en' : 'fr');
+            });
+
+            var saved = null;
+            try { saved = localStorage.getItem('lang'); } catch (e) {}
+            if (saved === 'en') setLang('en');
+        })();
+    </script>
+    <!-- GA4 Event Tracking -->
+    <script>
+        document.addEventListener('click', function (e) {
+            var el = e.target.closest('a, #langToggle');
+            if (!el) return;
+            var page = location.pathname;
+            if (el.id === 'langToggle') {
+                var label = document.getElementById('langLabel');
+                gtag('event', 'switch_language', { page_path: page, toggle_label: label ? label.textContent : '' });
+                return;
+            }
+            var href = el.getAttribute('href') || '';
+            if (el.hasAttribute('download')) {
+                gtag('event', 'download_cv', { page_path: page });
+            } else if (href.indexOf('github.com') !== -1) {
+                gtag('event', 'click_github', { link_url: href, page_path: page });
+            } else if (href.indexOf('linkedin.com') !== -1) {
+                gtag('event', 'click_linkedin', { link_url: href, page_path: page });
+            } else if (href.indexOf('mailto:') === 0) {
+                gtag('event', 'click_email', { page_path: page });
+            } else if (href.indexOf('project-') === 0) {
+                gtag('event', 'view_project', { project_page: href, page_path: page });
+            } else if (href === 'resume.html' && el.classList.contains('btn')) {
+                gtag('event', 'click_cv_button', { page_path: page });
+            } else if (href === 'projects.html' && el.classList.contains('btn')) {
+                gtag('event', 'click_projects_button', { page_path: page });
+            }
+        });
+    </script>
+</body>
+</html>
